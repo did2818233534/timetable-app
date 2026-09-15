@@ -73,11 +73,8 @@ fun MainRoute(
       onNextWeek = viewModel::showNextWeek,
       onImportClick = { filePicker.launch(arrayOf("application/json", "text/plain")) },
       onOpenCell = { day, period, items ->
-        when (items.size) {
-          0 -> editorTarget = CourseEditorTarget.New(day, period)
-          1 -> editorTarget = CourseEditorTarget.Existing(items.single(), period)
-          else -> slotSelection = SlotSelection(day, period, items)
-        }
+        if (items.isEmpty()) editorTarget = CourseEditorTarget.New(day, period)
+        else slotSelection = SlotSelection(day, period, items)
       },
       onCopyItem = viewModel::copyMeeting,
       onPasteCell = viewModel::pasteMeeting,
