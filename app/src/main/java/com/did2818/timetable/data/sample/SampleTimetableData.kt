@@ -2,6 +2,7 @@ package com.did2818.timetable.data.sample
 
 import com.did2818.timetable.domain.model.AcademicTerm
 import com.did2818.timetable.domain.model.ClassMeeting
+import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.Course
 import com.did2818.timetable.domain.model.WeekParity
 import com.did2818.timetable.domain.model.WeekPattern
@@ -25,6 +26,15 @@ object SampleTimetableData {
       Course(id = "physics", name = "大学物理", teacher = "李老师", colorArgb = 0xFF00897BL),
       Course(id = "english", name = "大学英语", teacher = "王老师", colorArgb = 0xFF8E5CC7L),
       Course(id = "programming", name = "程序设计", teacher = "陈老师", colorArgb = 0xFFE06C45L),
+    )
+
+  val periods =
+    listOf(
+      ClassPeriod(1, LocalTime.of(8, 0), LocalTime.of(9, 35)),
+      ClassPeriod(2, LocalTime.of(10, 0), LocalTime.of(11, 35)),
+      ClassPeriod(3, LocalTime.of(14, 0), LocalTime.of(15, 35)),
+      ClassPeriod(4, LocalTime.of(15, 50), LocalTime.of(17, 25)),
+      ClassPeriod(5, LocalTime.of(19, 0), LocalTime.of(20, 35)),
     )
 
   val meetings =

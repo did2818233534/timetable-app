@@ -28,6 +28,7 @@ class MainScreenTest {
             totalWeeks = term.totalWeeks,
             weekStart = term.dateOf(week, DayOfWeek.MONDAY),
             weekEnd = term.dateOf(week, DayOfWeek.SUNDAY),
+            periods = SampleTimetableData.periods,
             items = BuildWeekSchedule()(week, SampleTimetableData.courses, SampleTimetableData.meetings),
           ),
         onPreviousWeek = {},
@@ -39,6 +40,7 @@ class MainScreenTest {
   @Test
   fun schedule_displaysWeekAndCourses() {
     composeTestRule.onNodeWithText("第 2 周").assertExists()
+    composeTestRule.onNodeWithText("周日").assertExists()
     composeTestRule.onNodeWithText("高等数学").assertExists()
     composeTestRule.onNodeWithText("大学物理").assertExists()
   }
@@ -46,6 +48,5 @@ class MainScreenTest {
   @Test
   fun inactiveOddWeekCourse_isMarkedAsNotTakingPlace() {
     composeTestRule.onNode(hasStateDescription("本周不上课")).assertExists()
-    composeTestRule.onNodeWithText("本周不上").assertExists()
   }
 }

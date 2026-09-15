@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.did2818.timetable.data.sample.SampleTimetableData
 import com.did2818.timetable.domain.model.AcademicTerm
 import com.did2818.timetable.domain.model.ClassMeeting
+import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.Course
 import com.did2818.timetable.domain.model.WeekScheduleItem
 import com.did2818.timetable.domain.usecase.BuildWeekSchedule
@@ -18,6 +19,7 @@ class MainScreenViewModel(
   private val term: AcademicTerm = SampleTimetableData.term,
   private val courses: List<Course> = SampleTimetableData.courses,
   private val meetings: List<ClassMeeting> = SampleTimetableData.meetings,
+  private val periods: List<ClassPeriod> = SampleTimetableData.periods,
   private val buildWeekSchedule: BuildWeekSchedule = BuildWeekSchedule(),
   clock: Clock = Clock.systemDefaultZone(),
   initialWeek: Int? = null,
@@ -46,6 +48,7 @@ class MainScreenViewModel(
       totalWeeks = term.totalWeeks,
       weekStart = term.dateOf(week, DayOfWeek.MONDAY),
       weekEnd = term.dateOf(week, DayOfWeek.SUNDAY),
+      periods = periods,
       items = buildWeekSchedule(week, courses, meetings),
     )
 }
@@ -56,5 +59,6 @@ data class MainScreenUiState(
   val totalWeeks: Int,
   val weekStart: LocalDate,
   val weekEnd: LocalDate,
+  val periods: List<ClassPeriod>,
   val items: List<WeekScheduleItem>,
 )
