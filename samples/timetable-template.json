@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "term": {
+    "name": "2026 秋季学期",
+    "startDate": "2026-09-07",
+    "totalWeeks": 18
+  },
+  "periods": [
+    { "number": 1, "startTime": "08:00", "endTime": "09:35" },
+    { "number": 2, "startTime": "10:00", "endTime": "11:35" }
+  ],
+  "courses": [
+    {
+      "name": "示例课程",
+      "color": "#4F6BED",
+      "meetings": [
+        {
+          "day": "MONDAY",
+          "period": 1,
+          "classroom": "A101",
+          "startWeek": 1,
+          "endWeek": 18,
+          "parity": "EVERY_WEEK"
+        }
+      ]
+    }
+  ]
+}

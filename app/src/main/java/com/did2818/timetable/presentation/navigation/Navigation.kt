@@ -6,11 +6,16 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.presentation.timetable.MainRoute
 
 @Composable
-fun MainNavigation(repository: TimetableRepository) {
+fun MainNavigation(
+  repository: TimetableRepository,
+  importer: TimetableImporter,
+  onImported: () -> Unit,
+) {
   val backStack = rememberNavBackStack(Main)
 
   NavDisplay(
@@ -19,7 +24,12 @@ fun MainNavigation(repository: TimetableRepository) {
     entryProvider =
       entryProvider {
         entry<Main> {
-          MainRoute(repository = repository, modifier = Modifier.safeDrawingPadding())
+          MainRoute(
+            repository = repository,
+            importer = importer,
+            onImported = onImported,
+            modifier = Modifier.safeDrawingPadding(),
+          )
         }
       },
   )

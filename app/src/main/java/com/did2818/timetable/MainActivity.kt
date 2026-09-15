@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.did2818.timetable.presentation.navigation.MainNavigation
 import com.did2818.timetable.presentation.theme.TimetableAppTheme
 import com.did2818.timetable.di.appContainer
+import com.did2818.timetable.widget.RollingWeekWidgetUpdater
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +21,14 @@ class MainActivity : ComponentActivity() {
     setContent {
       TimetableAppTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          MainNavigation(repository = appContainer.timetableRepository)
+          val container = appContainer
+          MainNavigation(
+            repository = container.timetableRepository,
+            importer = container.timetableImporter,
+            onImported = {
+              RollingWeekWidgetUpdater(this, container.timetableRepository).updateAll()
+            },
+          )
         }
       }
     }

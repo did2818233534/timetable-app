@@ -18,4 +18,8 @@ class SampleTimetableRepository : TimetableRepository {
     )
 
   override val timetable: StateFlow<TimetableSnapshot> = mutableTimetable.asStateFlow()
+
+  override suspend fun replace(timetable: TimetableSnapshot) {
+    mutableTimetable.value = timetable
+  }
 }

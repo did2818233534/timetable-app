@@ -2,6 +2,7 @@ package com.did2818.timetable.presentation.timetable
 
 import com.did2818.timetable.MainDispatcherRule
 import com.did2818.timetable.data.sample.SampleTimetableRepository
+import com.did2818.timetable.domain.repository.TimetableImporter
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -34,8 +35,11 @@ class MainScreenViewModelTest {
   }
 
   private fun createViewModel() =
-    MainScreenViewModel(
-      repository = SampleTimetableRepository(),
-      initialWeek = 2,
-    )
+    SampleTimetableRepository().let { repository ->
+      MainScreenViewModel(
+        repository = repository,
+        importer = TimetableImporter { repository.timetable.value },
+        initialWeek = 2,
+      )
+    }
 }

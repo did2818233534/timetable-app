@@ -21,6 +21,7 @@ private fun TimetableScreenPreview() {
       state = previewState,
       onPreviousWeek = {},
       onNextWeek = {},
+      onImportClick = {},
     )
   }
 }

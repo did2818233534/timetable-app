@@ -6,4 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 /** Atomic timetable data boundary implemented by the data layer. */
 interface TimetableRepository {
   val timetable: StateFlow<TimetableSnapshot>
+
+  suspend fun replace(timetable: TimetableSnapshot)
 }

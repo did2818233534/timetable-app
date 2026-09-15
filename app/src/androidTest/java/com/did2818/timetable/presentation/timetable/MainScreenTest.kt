@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertHasClickAction
 import com.did2818.timetable.data.sample.SampleTimetableRepository
 import org.junit.Before
 import org.junit.Rule
@@ -25,6 +26,7 @@ class MainScreenTest {
         state = state,
         onPreviousWeek = {},
         onNextWeek = {},
+        onImportClick = {},
       )
     }
   }
@@ -40,5 +42,10 @@ class MainScreenTest {
   @Test
   fun inactiveOddWeekCourse_isMarkedAsNotTakingPlace() {
     composeTestRule.onNode(hasStateDescription("本周不上课")).assertExists()
+  }
+
+  @Test
+  fun importEntry_isVisibleAndClickable() {
+    composeTestRule.onNodeWithText("导入课表").assertHasClickAction()
   }
 }

@@ -29,6 +29,9 @@ signing/
 # Service configuration
 google-services.json
 
+# Personal timetable exports
+*.timetable.json
+
 # Operating systems and editors
 .DS_Store
 Thumbs.db

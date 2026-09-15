@@ -34,6 +34,7 @@ app/src/main/java/com/did2818/timetable/
 
 - [架构与模块边界](docs/ARCHITECTURE.md)
 - [开发约定与验证方式](docs/DEVELOPMENT.md)
+- [课表 JSON 文件格式](docs/TIMETABLE_JSON_FORMAT.md)
 - [功能任务规划](docs/PROJECT_PLAN.md)
 
 ## 本地构建
@@ -49,3 +50,4 @@ source /etc/profile.d/android-dev.sh
 - 主界面采用“星期列 × 节次行”表格，非当前周课程自动灰显。
 - 桌面小组件从当天开始展示未来七天，跨周时会按每天所属周次计算单双周状态。
 - 页面与小组件共用领域用例，并通过仓库接口取得同一份课程表快照。
+- 已支持从应用内选择 JSON 文件，校验后导入并持久化，同时刷新桌面组件。
