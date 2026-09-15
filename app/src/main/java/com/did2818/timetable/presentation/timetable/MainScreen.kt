@@ -1,5 +1,12 @@
 package com.did2818.timetable.presentation.timetable
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -18,27 +25,41 @@ fun MainScreen(
   onPreviousWeek: () -> Unit,
   onNextWeek: () -> Unit,
   onImportClick: () -> Unit,
-  onEditItem: (WeekScheduleItem) -> Unit,
+  onOpenCell: (DayOfWeek, ClassPeriod, List<WeekScheduleItem>) -> Unit,
   onCopyItem: (WeekScheduleItem) -> Unit,
-  onCreateCell: (DayOfWeek, ClassPeriod) -> Unit,
   onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
   modifier: Modifier = Modifier,
 ) {
   Column(modifier = modifier.fillMaxSize()) {
     TimetableToolbar(state.termName, onImportClick)
     WeekNavigation(state, onPreviousWeek, onNextWeek)
-    DayHeader(weekStart = state.weekStart)
-    TimetableGrid(
-      periods = state.periods,
-      items = state.items,
-      onEditItem = onEditItem,
-      onCopyItem = onCopyItem,
-      onCreateCell = onCreateCell,
-      onPasteCell = onPasteCell,
+    AnimatedContent(
+      targetState = state,
+      transitionSpec = {
+        val direction = if (targetState.selectedWeek > initialState.selectedWeek) 1 else -1
+        (slideInHorizontally(tween(260)) { direction * it } + fadeIn(tween(180))) togetherWith
+          (slideOutHorizontally(tween(260)) { -direction * it } + fadeOut(tween(180)))
+      },
+      contentKey = MainScreenUiState::selectedWeek,
       modifier =
         Modifier
           .weight(1f)
           .weekSwipeGesture(onSwipeLeft = onNextWeek, onSwipeRight = onPreviousWeek),
-    )
+    ) { visibleState ->
+      Column {
+        DayHeader(visibleState.weekStart, visibleState.visibleDays)
+        TimetableGrid(
+          periods = visibleState.periods,
+          visibleDays = visibleState.visibleDays,
+          items = visibleState.items,
+          selectedWeek = visibleState.selectedWeek,
+          totalWeeks = visibleState.totalWeeks,
+          onOpenCell = onOpenCell,
+          onCopyItem = onCopyItem,
+          onPasteCell = onPasteCell,
+          modifier = Modifier.weight(1f),
+        )
+      }
+    }
   }
 }

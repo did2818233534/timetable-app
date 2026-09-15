@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,6 +28,7 @@ import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.domain.usecase.ClassEdit
 import com.did2818.timetable.presentation.common.file.readUtf8Text
 import com.did2818.timetable.presentation.timetable.components.CourseEditorDialog
+import com.did2818.timetable.presentation.timetable.components.SlotCoursesDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,6 +46,8 @@ fun MainRoute(
   val scope = rememberCoroutineScope()
   val snackbar = remember { SnackbarHostState() }
   var editorTarget by remember { mutableStateOf<CourseEditorTarget?>(null) }
+  var slotSelection by remember { mutableStateOf<SlotSelection?>(null) }
+  var conflictWarning by remember { mutableStateOf<String?>(null) }
   val filePicker =
     rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
       uri?.let {
@@ -59,21 +65,21 @@ fun MainRoute(
     }
 
   LaunchedEffect(viewModel) { viewModel.messages.collect { snackbar.showSnackbar(it) } }
+  LaunchedEffect(viewModel) { viewModel.conflictWarnings.collect { conflictWarning = it } }
   Box(modifier = modifier.fillMaxSize()) {
     MainScreen(
       state = state,
       onPreviousWeek = viewModel::showPreviousWeek,
       onNextWeek = viewModel::showNextWeek,
       onImportClick = { filePicker.launch(arrayOf("application/json", "text/plain")) },
-      onEditItem = { item ->
-        val period =
-          state.periods.single {
-            it.startTime == item.meeting.startTime && it.endTime == item.meeting.endTime
-          }
-        editorTarget = CourseEditorTarget.Existing(item, period)
+      onOpenCell = { day, period, items ->
+        when (items.size) {
+          0 -> editorTarget = CourseEditorTarget.New(day, period)
+          1 -> editorTarget = CourseEditorTarget.Existing(items.single(), period)
+          else -> slotSelection = SlotSelection(day, period, items)
+        }
       },
       onCopyItem = viewModel::copyMeeting,
-      onCreateCell = { day, period -> editorTarget = CourseEditorTarget.New(day, period) },
       onPasteCell = viewModel::pasteMeeting,
     )
     SnackbarHost(hostState = snackbar, modifier = Modifier.align(Alignment.BottomCenter))
@@ -84,10 +90,9 @@ fun MainRoute(
       title = "${target.day.displayName()} 第 ${target.period.number} 节",
       initial =
         existing?.let {
-          ClassEdit(it.course.name, it.meeting.classroom, it.course.note, it.meeting.weekPattern)
+          ClassEdit(it.course.name, it.meeting.displayNote.ifBlank { it.course.note }, it.meeting.weekPattern)
         } ?: ClassEdit(
           name = "",
-          classroom = "",
           note = "",
           weekPattern = WeekPattern(state.selectedWeek, state.totalWeeks, WeekParity.EVERY_WEEK),
         ),
@@ -104,6 +109,29 @@ fun MainRoute(
           editorTarget = null
         }
       },
+    )
+  }
+  slotSelection?.let { slot ->
+    SlotCoursesDialog(
+      title = "${slot.day.displayName()} 第 ${slot.period.number} 节的课程",
+      items = slot.items,
+      onSelect = { item ->
+        slotSelection = null
+        editorTarget = CourseEditorTarget.Existing(item, slot.period)
+      },
+      onAdd = {
+        slotSelection = null
+        editorTarget = CourseEditorTarget.New(slot.day, slot.period)
+      },
+      onDismiss = { slotSelection = null },
+    )
+  }
+  conflictWarning?.let { warning ->
+    AlertDialog(
+      onDismissRequest = { conflictWarning = null },
+      title = { Text("课程时间冲突") },
+      text = { Text(warning) },
+      confirmButton = { TextButton(onClick = { conflictWarning = null }) { Text("知道了") } },
     )
   }
 }

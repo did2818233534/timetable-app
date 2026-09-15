@@ -17,7 +17,8 @@ class RollingWeekRemoteViewsRenderer(private val context: Context) {
   ): RemoteViews =
     RemoteViews(context.packageName, R.layout.widget_rolling_week).apply {
       bindHeader(days)
-      bindPeriods(periods, days)
+      bindDayColumns(days)
+      bindPeriodRows(periods, days)
       setOnClickPendingIntent(R.id.widget_root, launchAppIntent())
     }
 
@@ -27,33 +28,42 @@ class RollingWeekRemoteViewsRenderer(private val context: Context) {
       R.id.widget_range,
       "${days.first().date.widgetDateText()}–${days.last().date.widgetDateText()}",
     )
-    days.forEachIndexed { index, day ->
-      setTextViewText(
-        WidgetViewIds.dayHeaders[index],
+  }
+
+  private fun RemoteViews.bindDayColumns(days: List<DaySchedule>) {
+    removeAllViews(R.id.widget_day_container)
+    days.forEach { day ->
+      val column = RemoteViews(context.packageName, R.layout.widget_day_cell)
+      column.setTextViewText(
+        R.id.widget_dynamic_text,
         "${day.date.dayOfWeek.widgetDayText()}\n${day.date.dayOfMonth}",
       )
+      addView(R.id.widget_day_container, column)
     }
   }
 
-  private fun RemoteViews.bindPeriods(
+  private fun RemoteViews.bindPeriodRows(
     periods: List<ClassPeriod>,
     days: List<DaySchedule>,
   ) {
+    removeAllViews(R.id.widget_period_container)
     periods.forEachIndexed { periodIndex, period ->
-      setTextViewText(
-        WidgetViewIds.periodHeaders[periodIndex],
+      val row = RemoteViews(context.packageName, R.layout.widget_period_row)
+      row.setTextViewText(
+        R.id.widget_dynamic_period,
         "${period.number}\n${period.startTime.widgetTimeText()}",
       )
-      days.forEachIndexed { dayIndex, day ->
-        bindCourseCell(
-          WidgetViewIds.courseCells[periodIndex][dayIndex],
-          day.periodItems[periodIndex],
-        )
+      days.forEach { day ->
+        val cell = RemoteViews(context.packageName, R.layout.widget_course_cell)
+        cell.bindCourseCell(day.periodItems[periodIndex])
+        row.addView(R.id.widget_dynamic_cells, cell)
       }
+      addView(R.id.widget_period_container, row)
     }
   }
 
-  private fun RemoteViews.bindCourseCell(viewId: Int, item: WeekScheduleItem?) {
+  private fun RemoteViews.bindCourseCell(item: WeekScheduleItem?) {
+    val viewId = R.id.widget_dynamic_text
     if (item == null) {
       setTextViewText(viewId, "")
       setInt(viewId, "setBackgroundResource", R.drawable.widget_cell_empty)
@@ -62,11 +72,11 @@ class RollingWeekRemoteViewsRenderer(private val context: Context) {
       return
     }
 
-    val room = item.meeting.classroom.substringAfterLast(' ').takeIf(String::isNotBlank)
-    setTextViewText(viewId, listOfNotNull(item.course.name, room).joinToString("\n"))
+    val note = item.meeting.displayNote.ifBlank { item.course.note }.takeIf(String::isNotBlank)
+    setTextViewText(viewId, listOfNotNull(item.course.name, note).joinToString("\n"))
     if (item.isActive) bindActiveStyle(viewId, item) else bindInactiveStyle(viewId)
     val status = if (item.isActive) "上课" else "本日不上课"
-    setContentDescription(viewId, "${item.course.name}，${item.meeting.classroom}，$status")
+    setContentDescription(viewId, "${item.course.name}，${note.orEmpty()}，$status")
   }
 
   private fun RemoteViews.bindActiveStyle(viewId: Int, item: WeekScheduleItem) {

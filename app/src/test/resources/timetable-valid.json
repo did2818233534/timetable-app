@@ -6,8 +6,10 @@
     "totalWeeks": 18
   },
   "periods": [
-    { "number": 1, "startTime": "08:00", "endTime": "09:35", "breakAfter": "午休" }
+    { "number": 1, "startTime": "08:00", "endTime": "09:35", "visible": true },
+    { "number": 2, "startTime": "10:00", "endTime": "11:35", "visible": false }
   ],
+  "visibleDays": ["MONDAY", "TUESDAY", "SATURDAY"],
   "courses": [
     {
       "name": "测试课程",
@@ -19,7 +21,8 @@
           "startWeek": 1,
           "endWeek": 18,
           "parity": "ODD_WEEKS",
-          "excludedWeeks": [5]
+          "excludedWeeks": [5],
+          "activeWeeks": [1, 7]
         }
       ]
     }

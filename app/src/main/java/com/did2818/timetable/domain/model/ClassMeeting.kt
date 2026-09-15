@@ -3,7 +3,7 @@ package com.did2818.timetable.domain.model
 import java.time.DayOfWeek
 import java.time.LocalTime
 
-/** One recurring time and classroom arrangement for a course. */
+/** One recurring time, week pattern, and note for a course. */
 data class ClassMeeting(
   val id: String,
   val courseId: String,
@@ -11,6 +11,7 @@ data class ClassMeeting(
   val startTime: LocalTime,
   val endTime: LocalTime,
   val classroom: String = "",
+  val note: String = "",
   val weekPattern: WeekPattern,
 ) {
   init {
@@ -20,4 +21,7 @@ data class ClassMeeting(
   }
 
   fun isActiveIn(week: Int): Boolean = weekPattern.includes(week)
+
+  val displayNote: String
+    get() = note.ifBlank { classroom }
 }

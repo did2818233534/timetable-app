@@ -2,6 +2,7 @@ package com.did2818.timetable.presentation.timetable
 
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.WeekScheduleItem
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 data class MainScreenUiState(
@@ -11,5 +12,6 @@ data class MainScreenUiState(
   val weekStart: LocalDate,
   val weekEnd: LocalDate,
   val periods: List<ClassPeriod>,
+  val visibleDays: List<DayOfWeek>,
   val items: List<WeekScheduleItem>,
 )

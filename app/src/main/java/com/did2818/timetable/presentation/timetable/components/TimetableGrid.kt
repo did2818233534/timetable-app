@@ -15,16 +15,27 @@ import java.time.DayOfWeek
 @Composable
 fun TimetableGrid(
   periods: List<ClassPeriod>,
+  visibleDays: List<DayOfWeek>,
   items: List<WeekScheduleItem>,
-  onEditItem: (WeekScheduleItem) -> Unit,
+  selectedWeek: Int,
+  totalWeeks: Int,
+  onOpenCell: (DayOfWeek, ClassPeriod, List<WeekScheduleItem>) -> Unit,
   onCopyItem: (WeekScheduleItem) -> Unit,
-  onCreateCell: (DayOfWeek, ClassPeriod) -> Unit,
   onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
   modifier: Modifier = Modifier,
 ) {
   LazyColumn(modifier = modifier.fillMaxWidth()) {
     items(periods, key = ClassPeriod::number) { period ->
-      PeriodRow(period, items, onEditItem, onCopyItem, onCreateCell, onPasteCell)
+      PeriodRow(
+        period,
+        items,
+        visibleDays,
+        selectedWeek,
+        totalWeeks,
+        onOpenCell,
+        onCopyItem,
+        onPasteCell,
+      )
       period.breakAfter?.let { BreakRow(it) }
     }
     item { Spacer(Modifier.height(12.dp)) }

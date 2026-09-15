@@ -23,10 +23,9 @@ class MainScreenTest {
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   private var previousCount = 0
   private var nextCount = 0
-  private var editCount = 0
   private var copyCount = 0
-  private var createCount = 0
   private var pasteCount = 0
+  private val openedCellSizes = mutableListOf<Int>()
 
   @Before
   fun setup() {
@@ -41,9 +40,8 @@ class MainScreenTest {
         onPreviousWeek = { previousCount++ },
         onNextWeek = { nextCount++ },
         onImportClick = {},
-        onEditItem = { editCount++ },
+        onOpenCell = { _, _, items -> openedCellSizes += items.size },
         onCopyItem = { copyCount++ },
-        onCreateCell = { _, _ -> createCount++ },
         onPasteCell = { _, _ -> pasteCount++ },
       )
     }
@@ -86,9 +84,8 @@ class MainScreenTest {
     composeTestRule.onNodeWithTag("slot-SATURDAY-5").performTouchInput { longClick() }
 
     composeTestRule.runOnIdle {
-      assertEquals(1, editCount)
+      assertEquals(listOf(1, 0), openedCellSizes)
       assertEquals(1, copyCount)
-      assertEquals(1, createCount)
       assertEquals(1, pasteCount)
     }
   }

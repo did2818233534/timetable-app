@@ -42,7 +42,7 @@ private fun sampleMeeting(
   startMinute: Int,
   endHour: Int,
   endMinute: Int,
-  classroom: String,
+  note: String,
   parity: WeekParity = WeekParity.EVERY_WEEK,
 ) =
   ClassMeeting(
@@ -51,6 +51,6 @@ private fun sampleMeeting(
     dayOfWeek = day,
     startTime = LocalTime.of(startHour, startMinute),
     endTime = LocalTime.of(endHour, endMinute),
-    classroom = classroom,
+    note = note,
     weekPattern = WeekPattern(startWeek = 1, endWeek = 18, parity = parity),
   )

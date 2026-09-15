@@ -7,6 +7,8 @@ internal data class TimetableDocument(
   val formatVersion: Int,
   val term: TermDocument,
   val periods: List<PeriodDocument>,
+  val visibleDays: List<String> =
+    listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"),
   val courses: List<CourseDocument>,
 )
 
@@ -23,6 +25,7 @@ internal data class PeriodDocument(
   val startTime: String,
   val endTime: String,
   val breakAfter: String? = null,
+  val visible: Boolean = true,
 )
 
 @Serializable
@@ -39,8 +42,10 @@ internal data class MeetingDocument(
   val day: String,
   val period: Int,
   val classroom: String = "",
+  val note: String = "",
   val startWeek: Int,
   val endWeek: Int,
   val parity: String = "EVERY_WEEK",
   val excludedWeeks: Set<Int> = emptySet(),
+  val activeWeeks: Set<Int>? = null,
 )

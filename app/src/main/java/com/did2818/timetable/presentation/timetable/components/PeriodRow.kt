@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.testTag
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.WeekScheduleItem
+import com.did2818.timetable.domain.usecase.SelectSlotDisplay
 import com.did2818.timetable.presentation.common.format.timeText
 import java.time.DayOfWeek
 
@@ -31,9 +32,11 @@ import java.time.DayOfWeek
 internal fun PeriodRow(
   period: ClassPeriod,
   items: List<WeekScheduleItem>,
-  onEditItem: (WeekScheduleItem) -> Unit,
+  visibleDays: List<DayOfWeek>,
+  selectedWeek: Int,
+  totalWeeks: Int,
+  onOpenCell: (DayOfWeek, ClassPeriod, List<WeekScheduleItem>) -> Unit,
   onCopyItem: (WeekScheduleItem) -> Unit,
-  onCreateCell: (DayOfWeek, ClassPeriod) -> Unit,
   onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
 ) {
   val gridColor = MaterialTheme.colorScheme.outlineVariant
@@ -42,8 +45,9 @@ internal fun PeriodRow(
       period,
       Modifier.width(TimeColumnWidth).fillMaxHeight().border(GridLineWidth, gridColor),
     )
-    DayOfWeek.entries.forEach { day ->
-      val item = items.filter { it.matches(day, period) }.maxByOrNull { it.isActive }
+    visibleDays.forEach { day ->
+      val candidates = items.filter { it.matches(day, period) }
+      val display = SelectSlotDisplay()(candidates, selectedWeek, totalWeeks)
       Box(
         modifier =
           Modifier
@@ -52,12 +56,14 @@ internal fun PeriodRow(
             .border(GridLineWidth, gridColor)
             .testTag("slot-${day.name}-${period.number}")
             .combinedClickable(
-              onClick = { if (item == null) onCreateCell(day, period) else onEditItem(item) },
-              onLongClick = { if (item == null) onPasteCell(day, period) else onCopyItem(item) },
+              onClick = { onOpenCell(day, period, candidates) },
+              onLongClick = {
+                display?.let { onCopyItem(it.item) } ?: onPasteCell(day, period)
+              },
             )
             .padding(2.dp),
       ) {
-        if (item != null) CourseCell(item)
+        display?.let { CourseCell(it.item, it.hasConflict) }
       }
     }
   }

@@ -26,10 +26,10 @@ class EditTimetable(
         dayOfWeek = day,
         startTime = period.startTime,
         endTime = period.endTime,
-        classroom = edit.classroom.trim(),
+        note = edit.note.trim(),
         weekPattern = edit.weekPattern,
       )
-    return validate(timetable.copy(courses = timetable.courses + course, meetings = timetable.meetings + meeting))
+    return timetable.copy(courses = timetable.courses + course, meetings = timetable.meetings + meeting)
   }
 
   fun update(
@@ -46,10 +46,10 @@ class EditTimetable(
     }
     val meetings = timetable.meetings.map { current ->
       if (current.id == meetingId) {
-        current.copy(classroom = edit.classroom.trim(), weekPattern = edit.weekPattern)
+        current.copy(note = edit.note.trim(), weekPattern = edit.weekPattern)
       } else current
     }
-    return validate(timetable.copy(courses = courses, meetings = meetings))
+    return timetable.copy(courses = courses, meetings = meetings)
   }
 
   fun paste(
@@ -73,7 +73,7 @@ class EditTimetable(
         endTime = period.endTime,
       )
     val courses = if (sourceCourse == null) timetable.courses + course else timetable.courses
-    return validate(timetable.copy(courses = courses, meetings = timetable.meetings + meeting))
+    return timetable.copy(courses = courses, meetings = timetable.meetings + meeting)
   }
 
   fun delete(timetable: TimetableSnapshot, meetingId: String): TimetableSnapshot {
@@ -91,8 +91,4 @@ class EditTimetable(
     require(edit.weekPattern.endWeek <= timetable.term.totalWeeks) { "课程周数不能超过学期总周数" }
   }
 
-  private fun validate(timetable: TimetableSnapshot): TimetableSnapshot {
-    require(FindScheduleConflicts()(timetable.meetings).isEmpty()) { "该时间已有课程" }
-    return timetable
-  }
 }

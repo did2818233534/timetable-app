@@ -32,11 +32,13 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 应用界面：`TimetableRepository.timetable` → `MainScreenViewModel` → `MainScreenStateFactory` → `MainScreenUiState` → Compose 组件。
 
-应用内编辑：表格手势 → 编辑对话框或复制缓冲区 → `EditTimetable` 纯领域用例 → 冲突校验 → `TimetableRepository.replace` → 小组件刷新。
+应用内编辑：表格手势 → 编辑对话框或复制缓冲区 → `EditTimetable` 纯领域用例 → 冲突检测 → `TimetableRepository.replace` → 小组件刷新。
+
+同格显示：候选课程 → `SelectSlotDisplay` → 本周有效课程 / 最近的未来课程 / 最后的历史课程。冲突数据不会丢弃，由 `FindScheduleConflicts` 生成警告，界面负责显示冲突标记。
 
 文件导入：系统文件选择器 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.replace` → 私有文件持久化。
 
-桌面组件：`TimetableRepository.timetable.value` → `BuildRollingSchedule` → `RollingWeekRemoteViewsRenderer` → Android Launcher。
+桌面组件：`TimetableRepository.timetable.value` → 可见星期/节次过滤 → `BuildRollingSchedule` → 动态 `RemoteViews` 行列 → Android Launcher。
 
 `TimetableSnapshot` 是一次一致读取所需的聚合，负责保证节次编号和课程编号唯一，并拒绝引用不存在课程的上课安排。周界面和七日小组件分别使用 `BuildWeekSchedule` 与 `BuildRollingSchedule`，因此单双周、起止周等规则不会散落在渲染层。
 

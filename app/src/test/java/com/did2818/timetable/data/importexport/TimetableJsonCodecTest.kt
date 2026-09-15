@@ -15,12 +15,22 @@ class TimetableJsonCodecTest {
     val meeting = timetable.meetings.single()
 
     assertEquals("测试学期", timetable.term.name)
-    assertEquals("08:00", timetable.periods.single().startTime.toString())
-    assertEquals("09:35", timetable.periods.single().endTime.toString())
-    assertEquals("午休", timetable.periods.single().breakAfter)
-    assertEquals("A101", meeting.classroom)
+    assertEquals(2, timetable.periods.size)
+    assertEquals("08:00", timetable.periods.first().startTime.toString())
+    assertEquals("09:35", timetable.periods.first().endTime.toString())
+    assertEquals(false, timetable.periods.last().visible)
+    assertEquals(
+      setOf(
+        java.time.DayOfWeek.MONDAY,
+        java.time.DayOfWeek.TUESDAY,
+        java.time.DayOfWeek.SATURDAY,
+      ),
+      timetable.visibleDays,
+    )
+    assertEquals("A101", meeting.displayNote)
     assertEquals(WeekParity.ODD_WEEKS, meeting.weekPattern.parity)
     assertEquals(setOf(5), meeting.weekPattern.excludedWeeks)
+    assertEquals(setOf(1, 7), meeting.weekPattern.activeWeeks)
   }
 
   @Test

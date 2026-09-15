@@ -1,11 +1,25 @@
 package com.did2818.timetable.domain.model
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WeekPatternTest {
+  @Test
+  fun explicitWeeks_overrideParityForIrregularSchedules() {
+    val pattern =
+      WeekPattern(
+        startWeek = 1,
+        endWeek = 10,
+        parity = WeekParity.ODD_WEEKS,
+        activeWeeks = setOf(2, 5, 8),
+      )
+
+    assertEquals(listOf(2, 5, 8), (1..10).filter(pattern::includes))
+  }
+
   @Test
   fun everyWeek_includesBothBoundaries() {
     val pattern = WeekPattern(startWeek = 3, endWeek = 6)

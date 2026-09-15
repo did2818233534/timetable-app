@@ -22,19 +22,19 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Composable
-fun DayHeader(weekStart: LocalDate) {
+fun DayHeader(weekStart: LocalDate, visibleDays: List<DayOfWeek>) {
   val gridColor = MaterialTheme.colorScheme.outlineVariant
   Row(modifier = Modifier.fillMaxWidth().height(58.dp)) {
     Box(
       modifier = Modifier.width(TimeColumnWidth).fillMaxHeight().border(GridLineWidth, gridColor),
     )
-    DayOfWeek.entries.forEachIndexed { index, day ->
+    visibleDays.forEach { day ->
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.weight(1f).fillMaxHeight().border(GridLineWidth, gridColor),
       ) {
-        val date = weekStart.plusDays(index.toLong())
+        val date = weekStart.plusDays((day.value - 1).toLong())
         Text(day.chineseText(), fontSize = 12.sp)
         Text(
           date.monthDayText(),

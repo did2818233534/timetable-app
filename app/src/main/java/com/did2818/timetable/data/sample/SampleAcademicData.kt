@@ -17,9 +17,9 @@ internal object SampleAcademicData {
   val periods =
     listOf(
       ClassPeriod(1, LocalTime.of(8, 0), LocalTime.of(9, 35)),
-      ClassPeriod(2, LocalTime.of(10, 0), LocalTime.of(11, 35), breakAfter = "午休"),
+      ClassPeriod(2, LocalTime.of(10, 0), LocalTime.of(11, 35)),
       ClassPeriod(3, LocalTime.of(14, 0), LocalTime.of(15, 35)),
-      ClassPeriod(4, LocalTime.of(15, 50), LocalTime.of(17, 25), breakAfter = "晚休"),
+      ClassPeriod(4, LocalTime.of(15, 50), LocalTime.of(17, 25)),
       ClassPeriod(5, LocalTime.of(19, 0), LocalTime.of(20, 35)),
     )
 }

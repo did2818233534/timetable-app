@@ -7,7 +7,6 @@ import com.did2818.timetable.domain.model.Course
 import com.did2818.timetable.domain.model.TimetableSnapshot
 import com.did2818.timetable.domain.model.WeekParity
 import com.did2818.timetable.domain.model.WeekPattern
-import com.did2818.timetable.domain.usecase.FindScheduleConflicts
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -21,8 +20,7 @@ internal class TimetableDocumentMapper {
     val periods = document.periods.map(PeriodDocument::toModel)
     val courses = document.courses.mapIndexed { index, course -> course.toModel(index) }
     val meetings = buildMeetings(document.courses, courses, periods, term.totalWeeks)
-    require(FindScheduleConflicts()(meetings).isEmpty()) { "课表中存在时间冲突" }
-    return TimetableSnapshot(term, periods, courses, meetings)
+    return TimetableSnapshot(term, periods, courses, meetings, document.visibleDays.toVisibleDays())
   }
 
   fun fromSnapshot(timetable: TimetableSnapshot): TimetableDocument =
@@ -30,6 +28,7 @@ internal class TimetableDocumentMapper {
       formatVersion = SUPPORTED_VERSION,
       term = timetable.term.toDocument(),
       periods = timetable.periods.map(ClassPeriod::toDocument),
+      visibleDays = timetable.visibleDays.sortedBy { it.value }.map { it.name },
       courses = timetable.courses.map { it.toDocument(timetable) },
     )
 

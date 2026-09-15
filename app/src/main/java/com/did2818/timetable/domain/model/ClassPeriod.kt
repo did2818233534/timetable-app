@@ -8,6 +8,7 @@ data class ClassPeriod(
   val startTime: LocalTime,
   val endTime: LocalTime,
   val breakAfter: String? = null,
+  val visible: Boolean = true,
 ) {
   init {
     require(number >= 1) { "Period number must be positive" }

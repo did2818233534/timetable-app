@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WidgetPeriodRow">
+
+    <TextView
+        android:id="@+id/widget_dynamic_period"
+        style="@style/WidgetPeriodHeader" />
+
+    <LinearLayout
+        android:id="@+id/widget_dynamic_cells"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal" />
+</LinearLayout>

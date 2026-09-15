@@ -18,17 +18,21 @@ class BuildRollingSchedule {
     return List(dayCount) { offset ->
       val date = startDate.plusDays(offset.toLong())
       val week = timetable.term.weekNumberOn(date)
+      val displayWeek =
+        week ?: if (date < timetable.term.startDate) 0 else timetable.term.totalWeeks + 1
       DaySchedule(
         date = date,
         periodItems =
-          timetable.periods.map { period ->
-            val meeting =
-              timetable.meetings.firstOrNull {
-                it.dayOfWeek == date.dayOfWeek && it.startTime == period.startTime
-              }
-            val course = meeting?.let { coursesById[it.courseId] }
-            if (meeting == null || course == null) null
-            else WeekScheduleItem(course, meeting, week != null && meeting.isActiveIn(week))
+          timetable.periods.filter { it.visible }.map { period ->
+            val candidates =
+              timetable.meetings
+                .filter { it.dayOfWeek == date.dayOfWeek && it.startTime == period.startTime }
+                .mapNotNull { meeting ->
+                  coursesById[meeting.courseId]?.let { course ->
+                    WeekScheduleItem(course, meeting, meeting.isActiveIn(displayWeek))
+                  }
+                }
+            SelectSlotDisplay()(candidates, displayWeek, timetable.term.totalWeeks)?.item
           },
       )
     }

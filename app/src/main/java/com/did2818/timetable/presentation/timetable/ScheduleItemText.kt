@@ -4,6 +4,9 @@ import com.did2818.timetable.domain.model.WeekParity
 import com.did2818.timetable.domain.model.WeekScheduleItem
 
 fun WeekScheduleItem.compactWeekLabel(): String {
+  meeting.weekPattern.activeWeeks?.let { weeks ->
+    return weeks.sorted().joinToString(",", postfix = "周")
+  }
   val parityText =
     when (meeting.weekPattern.parity) {
       WeekParity.EVERY_WEEK -> "每周"

@@ -9,6 +9,7 @@ import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.domain.usecase.ClassEdit
 import com.did2818.timetable.domain.usecase.EditTimetable
+import com.did2818.timetable.domain.usecase.FindScheduleConflicts
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -55,6 +56,8 @@ class MainScreenViewModel(
 
   private val messageChannel = Channel<String>(Channel.BUFFERED)
   val messages = messageChannel.receiveAsFlow()
+  private val conflictChannel = Channel<String>(Channel.BUFFERED)
+  val conflictWarnings = conflictChannel.receiveAsFlow()
   private var copiedItem: WeekScheduleItem? = null
 
   fun importDocument(document: String) {
@@ -63,7 +66,9 @@ class MainScreenViewModel(
         .onSuccess { timetable ->
           selectedWeek.value = timetable.term.weekNumberOn(LocalDate.now(clock)) ?: 1
           onImported()
-          messageChannel.send("已导入 ${timetable.courses.size} 门课程")
+          val conflictCount = FindScheduleConflicts()(timetable.meetings).size
+          if (conflictCount > 0) conflictChannel.send("已导入课表，其中有 $conflictCount 处时间冲突。")
+          else messageChannel.send("已导入 ${timetable.courses.size} 门课程")
         }
         .onFailure { error ->
           messageChannel.send(error.message ?: "课表导入失败")
@@ -103,10 +108,16 @@ class MainScreenViewModel(
 
   private fun save(message: String, change: (TimetableSnapshot) -> TimetableSnapshot) {
     viewModelScope.launch {
-      runCatching { repository.replace(change(repository.timetable.value)) }
-        .onSuccess {
+      runCatching {
+          val updated = change(repository.timetable.value)
+          repository.replace(updated)
+          FindScheduleConflicts()(updated.meetings).size
+        }
+        .onSuccess { conflictCount ->
           onImported()
-          messageChannel.send(message)
+          if (conflictCount > 0) {
+            conflictChannel.send("$message，但当前课表有 $conflictCount 处时间冲突。冲突格会显示 !。")
+          } else messageChannel.send(message)
         }
         .onFailure { error -> messageChannel.send(error.message ?: "课表保存失败") }
     }

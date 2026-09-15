@@ -22,9 +22,8 @@ private fun TimetableScreenPreview() {
       onPreviousWeek = {},
       onNextWeek = {},
       onImportClick = {},
-      onEditItem = {},
+      onOpenCell = { _, _, _ -> },
       onCopyItem = {},
-      onCreateCell = { _, _ -> },
       onPasteCell = { _, _ -> },
     )
   }

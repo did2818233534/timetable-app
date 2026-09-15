@@ -6,7 +6,6 @@ import com.did2818.timetable.domain.model.WeekPattern
 import com.did2818.timetable.domain.usecase.BuildWeekSchedule
 import java.time.DayOfWeek
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class EditTimetableTest {
@@ -21,12 +20,11 @@ class EditTimetableTest {
       editor.update(
         timetable,
         meeting.id,
-        ClassEdit("新课程名", "B202", "带实验服", WeekPattern(3, 8, WeekParity.ODD_WEEKS)),
+        ClassEdit("新课程名", "B202，带实验服", WeekPattern(3, 8, WeekParity.ODD_WEEKS)),
       )
 
     assertEquals("新课程名", updated.courses.single { it.id == meeting.courseId }.name)
-    assertEquals("带实验服", updated.courses.single { it.id == meeting.courseId }.note)
-    assertEquals("B202", updated.meetings.single { it.id == meeting.id }.classroom)
+    assertEquals("B202，带实验服", updated.meetings.single { it.id == meeting.id }.note)
   }
 
   @Test
@@ -47,24 +45,23 @@ class EditTimetableTest {
         timetable,
         DayOfWeek.SATURDAY,
         5,
-        ClassEdit("实验课", "C303", "自带电脑", WeekPattern(2, 6)),
+        ClassEdit("实验课", "C303，自带电脑", WeekPattern(2, 6)),
       )
-    val course = updated.courses.last()
     val meeting = updated.meetings.last()
 
-    assertEquals("自带电脑", course.note)
+    assertEquals("C303，自带电脑", meeting.note)
     assertEquals(DayOfWeek.SATURDAY, meeting.dayOfWeek)
     assertEquals(timetable.periods.last().endTime, meeting.endTime)
   }
 
   @Test
-  fun paste_rejectsConflictingClass() {
+  fun paste_preservesConflictingClassForUserResolution() {
     val copied = BuildWeekSchedule()(2, timetable.courses, timetable.meetings).first()
     val occupied = timetable.meetings.first { it.id != copied.meeting.id }
     val period = timetable.periods.single { it.startTime == occupied.startTime }
 
-    assertThrows(IllegalArgumentException::class.java) {
-      editor.paste(timetable, copied, occupied.dayOfWeek, period.number)
-    }
+    val updated = editor.paste(timetable, copied, occupied.dayOfWeek, period.number)
+
+    assertEquals(1, FindScheduleConflicts()(updated.meetings).size)
   }
 }

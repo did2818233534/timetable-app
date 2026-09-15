@@ -32,14 +32,20 @@ internal fun CourseEditorDialog(
   onDelete: (() -> Unit)? = null,
 ) {
   var name by remember(initial) { mutableStateOf(initial.name) }
-  var classroom by remember(initial) { mutableStateOf(initial.classroom) }
   var note by remember(initial) { mutableStateOf(initial.note) }
   var startWeek by remember(initial) { mutableStateOf(initial.weekPattern.startWeek.toString()) }
   var endWeek by remember(initial) { mutableStateOf(initial.weekPattern.endWeek.toString()) }
   var parity by remember(initial) { mutableStateOf(initial.weekPattern.parity) }
+  var activeWeeksText by remember(initial) {
+    mutableStateOf(initial.weekPattern.activeWeeks?.sorted()?.joinToString(",").orEmpty())
+  }
   val first = startWeek.toIntOrNull()
   val last = endWeek.toIntOrNull()
-  val valid = name.isNotBlank() && first != null && last != null && first in 1..totalWeeks && last in first..totalWeeks
+  val activeWeeks = activeWeeksText.toWeekSet()
+  val customWeeksValid = activeWeeksText.isBlank() || activeWeeks != null
+  val valid =
+    name.isNotBlank() && first != null && last != null && first in 1..totalWeeks &&
+      last in first..totalWeeks && customWeeksValid && activeWeeks?.all { it in first..last } != false
 
   AlertDialog(
     onDismissRequest = onDismiss,
@@ -50,7 +56,6 @@ internal fun CourseEditorDialog(
         modifier = androidx.compose.ui.Modifier.verticalScroll(rememberScrollState()),
       ) {
         OutlinedTextField(name, { name = it }, label = { Text("课程名称") }, singleLine = true)
-        OutlinedTextField(classroom, { classroom = it }, label = { Text("教室") }, singleLine = true)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
           WeekField("开始周", startWeek, { startWeek = it }, androidx.compose.ui.Modifier.weight(1f))
           WeekField("结束周", endWeek, { endWeek = it }, androidx.compose.ui.Modifier.weight(1f))
@@ -65,9 +70,17 @@ internal fun CourseEditorDialog(
           }
         }
         OutlinedTextField(
+          value = activeWeeksText,
+          onValueChange = { activeWeeksText = it },
+          label = { Text("指定周次（可选，如 1,2,5）") },
+          supportingText = { Text("填写后按这些周次上课，不再按单双周推算") },
+          isError = !customWeeksValid,
+          singleLine = true,
+        )
+        OutlinedTextField(
           value = note,
           onValueChange = { note = it },
-          label = { Text("备注") },
+          label = { Text("备注（教室也填写在这里）") },
           minLines = 2,
           maxLines = 4,
         )
@@ -77,7 +90,13 @@ internal fun CourseEditorDialog(
       TextButton(
         enabled = valid,
         onClick = {
-          onSave(ClassEdit(name, classroom, note, WeekPattern(first!!, last!!, parity)))
+          onSave(
+            ClassEdit(
+              name,
+              note,
+              WeekPattern(first!!, last!!, parity, activeWeeks = activeWeeks),
+            ),
+          )
         },
       ) { Text("保存") }
     },
@@ -113,3 +132,10 @@ private fun WeekParity.displayName(): String =
     WeekParity.ODD_WEEKS -> "单周"
     WeekParity.EVEN_WEEKS -> "双周"
   }
+
+private fun String.toWeekSet(): Set<Int>? {
+  if (isBlank()) return null
+  val tokens = trim().split(Regex("[,，\\s]+"))
+  val weeks = tokens.map { it.toIntOrNull() }
+  return if (weeks.any { it == null }) null else weeks.filterNotNull().toSet()
+}

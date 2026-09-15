@@ -20,9 +20,12 @@ class RollingWeekWidgetUpdater(
     today: LocalDate = LocalDate.now(),
   ) {
     val timetable = repository.timetable.value
-    val schedule = buildSchedule(today, DAYS_TO_SHOW, timetable)
+    val schedule =
+      buildSchedule(today, DAYS_TO_SHOW, timetable)
+        .filter { it.date.dayOfWeek in timetable.visibleDays }
+    val periods = timetable.periods.filter { it.visible }
     widgetIds.forEach { widgetId ->
-      widgetManager.updateAppWidget(widgetId, renderer.render(timetable.periods, schedule))
+      widgetManager.updateAppWidget(widgetId, renderer.render(periods, schedule))
     }
   }
 
