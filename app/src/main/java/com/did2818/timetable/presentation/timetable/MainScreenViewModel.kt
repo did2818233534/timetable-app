@@ -1,64 +1,42 @@
 package com.did2818.timetable.presentation.timetable
 
 import androidx.lifecycle.ViewModel
-import com.did2818.timetable.data.sample.SampleTimetableData
-import com.did2818.timetable.domain.model.AcademicTerm
-import com.did2818.timetable.domain.model.ClassMeeting
-import com.did2818.timetable.domain.model.ClassPeriod
-import com.did2818.timetable.domain.model.Course
-import com.did2818.timetable.domain.model.WeekScheduleItem
-import com.did2818.timetable.domain.usecase.BuildWeekSchedule
+import androidx.lifecycle.viewModelScope
+import com.did2818.timetable.domain.repository.TimetableRepository
 import java.time.Clock
-import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 class MainScreenViewModel(
-  private val term: AcademicTerm = SampleTimetableData.term,
-  private val courses: List<Course> = SampleTimetableData.courses,
-  private val meetings: List<ClassMeeting> = SampleTimetableData.meetings,
-  private val periods: List<ClassPeriod> = SampleTimetableData.periods,
-  private val buildWeekSchedule: BuildWeekSchedule = BuildWeekSchedule(),
+  private val repository: TimetableRepository,
   clock: Clock = Clock.systemDefaultZone(),
   initialWeek: Int? = null,
+  private val stateFactory: MainScreenStateFactory = MainScreenStateFactory(),
 ) : ViewModel() {
+  private val initialTimetable = repository.timetable.value
   private val startingWeek =
-    initialWeek?.coerceIn(1, term.totalWeeks)
-      ?: term.weekNumberOn(LocalDate.now(clock))
+    initialWeek?.coerceIn(1, initialTimetable.term.totalWeeks)
+      ?: initialTimetable.term.weekNumberOn(LocalDate.now(clock))
       ?: 1
+  private val selectedWeek = MutableStateFlow(startingWeek)
 
-  private val _uiState = MutableStateFlow(stateFor(startingWeek))
-  val uiState: StateFlow<MainScreenUiState> = _uiState.asStateFlow()
+  val uiState: StateFlow<MainScreenUiState> =
+    combine(repository.timetable, selectedWeek, stateFactory::create)
+      .stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        stateFactory.create(initialTimetable, startingWeek),
+      )
 
-  fun showPreviousWeek() = selectWeek(_uiState.value.selectedWeek - 1)
+  fun showPreviousWeek() = selectWeek(selectedWeek.value - 1)
 
-  fun showNextWeek() = selectWeek(_uiState.value.selectedWeek + 1)
+  fun showNextWeek() = selectWeek(selectedWeek.value + 1)
 
   fun selectWeek(week: Int) {
-    if (week !in 1..term.totalWeeks || week == _uiState.value.selectedWeek) return
-    _uiState.value = stateFor(week)
+    if (week in 1..repository.timetable.value.term.totalWeeks) selectedWeek.value = week
   }
-
-  private fun stateFor(week: Int) =
-    MainScreenUiState(
-      termName = term.name,
-      selectedWeek = week,
-      totalWeeks = term.totalWeeks,
-      weekStart = term.dateOf(week, DayOfWeek.MONDAY),
-      weekEnd = term.dateOf(week, DayOfWeek.SUNDAY),
-      periods = periods,
-      items = buildWeekSchedule(week, courses, meetings),
-    )
 }
-
-data class MainScreenUiState(
-  val termName: String,
-  val selectedWeek: Int,
-  val totalWeeks: Int,
-  val weekStart: LocalDate,
-  val weekEnd: LocalDate,
-  val periods: List<ClassPeriod>,
-  val items: List<WeekScheduleItem>,
-)

@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.did2818.timetable.presentation.navigation.MainNavigation
 import com.did2818.timetable.presentation.theme.TimetableAppTheme
+import com.did2818.timetable.di.appContainer
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,7 +18,11 @@ class MainActivity : ComponentActivity() {
 
     enableEdgeToEdge()
     setContent {
-      TimetableAppTheme { Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { MainNavigation() } }
+      TimetableAppTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+          MainNavigation(repository = appContainer.timetableRepository)
+        }
+      }
     }
   }
 }

@@ -4,9 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import com.did2818.timetable.data.sample.SampleTimetableData
-import com.did2818.timetable.domain.usecase.BuildWeekSchedule
-import java.time.DayOfWeek
+import com.did2818.timetable.data.sample.SampleTimetableRepository
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -17,20 +15,14 @@ class MainScreenTest {
 
   @Before
   fun setup() {
-    val week = 2
-    val term = SampleTimetableData.term
+    val state =
+      MainScreenStateFactory().create(
+        timetable = SampleTimetableRepository().timetable.value,
+        requestedWeek = 2,
+      )
     composeTestRule.setContent {
       MainScreen(
-        state =
-          MainScreenUiState(
-            termName = term.name,
-            selectedWeek = week,
-            totalWeeks = term.totalWeeks,
-            weekStart = term.dateOf(week, DayOfWeek.MONDAY),
-            weekEnd = term.dateOf(week, DayOfWeek.SUNDAY),
-            periods = SampleTimetableData.periods,
-            items = BuildWeekSchedule()(week, SampleTimetableData.courses, SampleTimetableData.meetings),
-          ),
+        state = state,
         onPreviousWeek = {},
         onNextWeek = {},
       )

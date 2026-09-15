@@ -1,12 +1,17 @@
 package com.did2818.timetable.presentation.timetable
 
+import com.did2818.timetable.MainDispatcherRule
+import com.did2818.timetable.data.sample.SampleTimetableRepository
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
 class MainScreenViewModelTest {
+  @get:Rule val mainDispatcherRule = MainDispatcherRule()
+
   @Test
   fun weekNavigation_updatesScheduleAndStopsAtTermBoundaries() {
-    val viewModel = MainScreenViewModel(initialWeek = 2)
+    val viewModel = createViewModel()
 
     viewModel.showPreviousWeek()
     assertEquals(1, viewModel.uiState.value.selectedWeek)
@@ -21,10 +26,16 @@ class MainScreenViewModelTest {
 
   @Test
   fun evenWeek_marksOddCourseInactiveAndEvenCourseActive() {
-    val viewModel = MainScreenViewModel(initialWeek = 2)
+    val viewModel = createViewModel()
     val stateByCourse = viewModel.uiState.value.items.associateBy { it.course.id }
 
     assertEquals(false, stateByCourse.getValue("physics").isActive)
     assertEquals(true, stateByCourse.getValue("programming").isActive)
   }
+
+  private fun createViewModel() =
+    MainScreenViewModel(
+      repository = SampleTimetableRepository(),
+      initialWeek = 2,
+    )
 }
