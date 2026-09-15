@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">课程表</string>
+    <string name="rolling_week_widget_name">未来七天课程表</string>
+    <string name="rolling_week_widget_description">从今天开始显示未来七天课程的表格小组件</string>
 </resources>

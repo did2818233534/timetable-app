@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:textColor="@color/widget_text"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_range"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|end"
+            android:maxLines="1"
+            android:textColor="@color/widget_text_secondary"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="34dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/widget_cell_empty" />
+
+        <TextView android:id="@+id/widget_day_0" style="@style/WidgetDayHeader" />
+        <TextView android:id="@+id/widget_day_1" style="@style/WidgetDayHeader" />
+        <TextView android:id="@+id/widget_day_2" style="@style/WidgetDayHeader" />
+        <TextView android:id="@+id/widget_day_3" style="@style/WidgetDayHeader" />
+        <TextView android:id="@+id/widget_day_4" style="@style/WidgetDayHeader" />
+        <TextView android:id="@+id/widget_day_5" style="@style/WidgetDayHeader" />
+        <TextView android:id="@+id/widget_day_6" style="@style/WidgetDayHeader" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPeriodRow">
+        <TextView android:id="@+id/widget_period_0" style="@style/WidgetPeriodHeader" />
+        <TextView android:id="@+id/widget_cell_0_0" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_0_1" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_0_2" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_0_3" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_0_4" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_0_5" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_0_6" style="@style/WidgetCourseCell" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPeriodRow">
+        <TextView android:id="@+id/widget_period_1" style="@style/WidgetPeriodHeader" />
+        <TextView android:id="@+id/widget_cell_1_0" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_1_1" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_1_2" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_1_3" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_1_4" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_1_5" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_1_6" style="@style/WidgetCourseCell" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPeriodRow">
+        <TextView android:id="@+id/widget_period_2" style="@style/WidgetPeriodHeader" />
+        <TextView android:id="@+id/widget_cell_2_0" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_2_1" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_2_2" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_2_3" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_2_4" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_2_5" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_2_6" style="@style/WidgetCourseCell" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPeriodRow">
+        <TextView android:id="@+id/widget_period_3" style="@style/WidgetPeriodHeader" />
+        <TextView android:id="@+id/widget_cell_3_0" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_3_1" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_3_2" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_3_3" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_3_4" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_3_5" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_3_6" style="@style/WidgetCourseCell" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPeriodRow">
+        <TextView android:id="@+id/widget_period_4" style="@style/WidgetPeriodHeader" />
+        <TextView android:id="@+id/widget_cell_4_0" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_4_1" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_4_2" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_4_3" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_4_4" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_4_5" style="@style/WidgetCourseCell" />
+        <TextView android:id="@+id/widget_cell_4_6" style="@style/WidgetCourseCell" />
+    </LinearLayout>
+</LinearLayout>
