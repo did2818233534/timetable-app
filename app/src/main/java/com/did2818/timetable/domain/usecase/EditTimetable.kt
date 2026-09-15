@@ -28,6 +28,7 @@ class EditTimetable(
         endTime = period.endTime,
         note = edit.note.trim(),
         weekPattern = edit.weekPattern,
+        reminderOverride = edit.reminderOverride,
       )
     return timetable.copy(courses = timetable.courses + course, meetings = timetable.meetings + meeting)
   }
@@ -46,7 +47,11 @@ class EditTimetable(
     }
     val meetings = timetable.meetings.map { current ->
       if (current.id == meetingId) {
-        current.copy(note = edit.note.trim(), weekPattern = edit.weekPattern)
+        current.copy(
+          note = edit.note.trim(),
+          weekPattern = edit.weekPattern,
+          reminderOverride = edit.reminderOverride,
+        )
       } else current
     }
     return timetable.copy(courses = courses, meetings = meetings)

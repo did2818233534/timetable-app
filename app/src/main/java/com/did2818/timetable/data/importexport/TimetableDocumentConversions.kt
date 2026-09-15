@@ -7,6 +7,10 @@ import com.did2818.timetable.domain.model.Course
 import com.did2818.timetable.domain.model.TimetableSnapshot
 import com.did2818.timetable.domain.model.WeekParity
 import com.did2818.timetable.domain.model.WeekPattern
+import com.did2818.timetable.domain.model.ReminderDelivery
+import com.did2818.timetable.domain.model.ReminderOverride
+import com.did2818.timetable.domain.model.ReminderScope
+import com.did2818.timetable.domain.model.ReminderSettings
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -45,6 +49,20 @@ internal fun CourseDocument.toModel(index: Int): Course {
   )
 }
 
+internal fun ReminderSettingsDocument.toModel(): ReminderSettings =
+  ReminderSettings(
+    scope = parseValue("全局提醒范围", scope.uppercase(), ReminderScope::valueOf),
+    minutesBefore = minutesBefore,
+    delivery = parseValue("全局提醒方式", delivery.uppercase(), ReminderDelivery::valueOf),
+  )
+
+internal fun ReminderOverrideDocument.toModel(): ReminderOverride =
+  ReminderOverride(
+    enabled = enabled,
+    minutesBefore = minutesBefore,
+    delivery = parseValue("课程提醒方式", delivery.uppercase(), ReminderDelivery::valueOf),
+  )
+
 internal fun MeetingDocument.toModel(
   courseId: String,
   index: Int,
@@ -71,6 +89,7 @@ internal fun MeetingDocument.toModel(
         excludedWeeks = excludedWeeks,
         activeWeeks = activeWeeks,
       ),
+    reminderOverride = reminder?.toModel(),
   )
 }
 

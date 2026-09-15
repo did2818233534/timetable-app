@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ internal fun TimetableLayoutSettingsDialog(
   initialHideEmptyDays: Boolean,
   onDismiss: () -> Unit,
   onSave: (TimetableLayoutEdit) -> Unit,
+  onReminderSettingsClick: () -> Unit,
 ) {
   var drafts by remember(periods) { mutableStateOf(periods.map(ClassPeriod::toDraft)) }
   var selectedDays by remember(configuredDays) { mutableStateOf(configuredDays) }
@@ -47,6 +49,7 @@ internal fun TimetableLayoutSettingsDialog(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
       ) {
+        OutlinedButton(onClick = onReminderSettingsClick) { Text("全局提醒设置") }
         Text("显示星期")
         DayChips(selectedDays) { day ->
           selectedDays = if (day in selectedDays) selectedDays - day else selectedDays + day

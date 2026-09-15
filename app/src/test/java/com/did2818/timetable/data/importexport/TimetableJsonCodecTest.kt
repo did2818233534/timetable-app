@@ -1,6 +1,10 @@
 package com.did2818.timetable.data.importexport
 
 import com.did2818.timetable.domain.model.WeekParity
+import com.did2818.timetable.domain.model.ReminderDelivery
+import com.did2818.timetable.domain.model.ReminderOverride
+import com.did2818.timetable.domain.model.ReminderScope
+import com.did2818.timetable.domain.model.ReminderSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -32,6 +36,7 @@ class TimetableJsonCodecTest {
     assertEquals(setOf(5), meeting.weekPattern.excludedWeeks)
     assertEquals(setOf(1, 7), meeting.weekPattern.activeWeeks)
     assertEquals(false, timetable.hideEmptyDays)
+    assertEquals(ReminderScope.DISABLED, timetable.reminderSettings.scope)
   }
 
   @Test
@@ -55,6 +60,23 @@ class TimetableJsonCodecTest {
     assertEquals(true, document.contains("\"visibleDays\""))
     assertEquals(true, document.contains("\"hideEmptyDays\": true"))
     assertEquals(true, document.contains("\"visible\": true"))
+  }
+
+  @Test
+  fun encodeAndDecode_preservesGlobalAndMeetingReminderSettings() {
+    val source = codec.decode(validDocument)
+    val reminder = ReminderOverride(true, 20, ReminderDelivery.ALARM)
+    val timetable =
+      source.copy(
+        reminderSettings = ReminderSettings(ReminderScope.FIRST_CLASS_OF_DAY, 15),
+        meetings = listOf(source.meetings.single().copy(reminderOverride = reminder)),
+      )
+
+    val document = codec.encode(timetable)
+
+    assertEquals(timetable, codec.decode(document))
+    assertEquals(true, document.contains("\"scope\": \"FIRST_CLASS_OF_DAY\""))
+    assertEquals(true, document.contains("\"reminder\""))
   }
 
   @Test

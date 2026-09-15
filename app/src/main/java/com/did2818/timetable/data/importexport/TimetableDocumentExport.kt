@@ -4,11 +4,19 @@ import com.did2818.timetable.domain.model.AcademicTerm
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.Course
 import com.did2818.timetable.domain.model.TimetableSnapshot
+import com.did2818.timetable.domain.model.ReminderOverride
+import com.did2818.timetable.domain.model.ReminderSettings
 
 internal fun AcademicTerm.toDocument() = TermDocument(name, startDate.toString(), totalWeeks)
 
 internal fun ClassPeriod.toDocument() =
   PeriodDocument(number, startTime.toString(), endTime.toString(), breakAfter, visible)
+
+internal fun ReminderSettings.toDocument() =
+  ReminderSettingsDocument(scope.name, minutesBefore, delivery.name)
+
+internal fun ReminderOverride.toDocument() =
+  ReminderOverrideDocument(enabled, minutesBefore, delivery.name)
 
 internal fun Course.toDocument(timetable: TimetableSnapshot) =
   CourseDocument(
@@ -31,6 +39,7 @@ internal fun Course.toDocument(timetable: TimetableSnapshot) =
           parity = meeting.weekPattern.parity.name,
           excludedWeeks = meeting.weekPattern.excludedWeeks,
           activeWeeks = meeting.weekPattern.activeWeeks,
+          reminder = meeting.reminderOverride?.toDocument(),
         )
       },
   )

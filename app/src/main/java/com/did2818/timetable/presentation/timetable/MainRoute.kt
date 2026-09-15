@@ -18,15 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.did2818.timetable.domain.model.WeekParity
-import com.did2818.timetable.domain.model.WeekPattern
 import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableRepository
-import com.did2818.timetable.domain.usecase.ClassEdit
-import com.did2818.timetable.presentation.timetable.components.CourseEditorDialog
-import com.did2818.timetable.presentation.timetable.components.SlotCoursesDialog
-import com.did2818.timetable.presentation.timetable.components.TimetableLayoutSettingsDialog
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -39,6 +33,7 @@ fun MainRoute(
   externalDocumentUri: Uri?,
   onExternalDocumentHandled: () -> Unit,
   onImported: () -> Unit,
+  onReminderPermissionRequest: () -> Unit,
   modifier: Modifier = Modifier,
   viewModel: MainScreenViewModel =
     viewModel { MainScreenViewModel(repository, importer, exporter, onImported) },
@@ -49,7 +44,7 @@ fun MainRoute(
   var slotSelection by remember { mutableStateOf<SlotSelection?>(null) }
   var conflictWarning by remember { mutableStateOf<String?>(null) }
   var newTimetableStep by remember { mutableStateOf(NewTimetableStep.CLOSED) }
-  var showLayoutSettings by remember { mutableStateOf(false) }
+  var settingsPage by remember { mutableStateOf(TimetableSettingsPage.CLOSED) }
   val fileActions =
     rememberTimetableFileActions(
       externalDocumentUri = externalDocumentUri,
@@ -62,6 +57,9 @@ fun MainRoute(
 
   LaunchedEffect(viewModel) { viewModel.messages.collect { snackbar.showSnackbar(it) } }
   LaunchedEffect(viewModel) { viewModel.conflictWarnings.collect { conflictWarning = it } }
+  LaunchedEffect(viewModel) {
+    viewModel.reminderPermissionRequests.collect { onReminderPermissionRequest() }
+  }
   Box(modifier = modifier.fillMaxSize()) {
     MainScreen(
       state = state,
@@ -73,7 +71,7 @@ fun MainRoute(
         newTimetableStep =
           if (state.hasTimetable) NewTimetableStep.CONFIRM_REPLACE else NewTimetableStep.EDIT
       },
-      onSettingsClick = { showLayoutSettings = true },
+      onSettingsClick = { settingsPage = TimetableSettingsPage.LAYOUT },
       onOpenCell = { day, period, items ->
         if (items.isEmpty()) editorTarget = CourseEditorTarget.New(day, period)
         else slotSelection = SlotSelection(day, period, items)
@@ -92,57 +90,25 @@ fun MainRoute(
       newTimetableStep = NewTimetableStep.CLOSED
     },
   )
-  if (showLayoutSettings) {
-    TimetableLayoutSettingsDialog(
-      periods = state.allPeriods,
-      configuredDays = state.configuredDays,
-      initialHideEmptyDays = state.hideEmptyDays,
-      onDismiss = { showLayoutSettings = false },
-      onSave = { edit -> viewModel.updateLayout(edit) { showLayoutSettings = false } },
-    )
-  }
-  editorTarget?.let { target ->
-    val existing = (target as? CourseEditorTarget.Existing)?.item
-    CourseEditorDialog(
-      title = "${target.day.displayName()} 第 ${target.period.number} 节",
-      initial =
-        existing?.let {
-          ClassEdit(it.course.name, it.meeting.displayNote.ifBlank { it.course.note }, it.meeting.weekPattern)
-        } ?: ClassEdit(
-          name = "",
-          note = "",
-          weekPattern = WeekPattern(state.selectedWeek, state.totalWeeks, WeekParity.EVERY_WEEK),
-        ),
-      totalWeeks = state.totalWeeks,
-      onDismiss = { editorTarget = null },
-      onSave = { edit ->
-        if (existing == null) viewModel.addMeeting(target.day, target.period, edit)
-        else viewModel.updateMeeting(existing, edit)
-        editorTarget = null
-      },
-      onDelete = existing?.let { item ->
-        {
-          viewModel.deleteMeeting(item)
-          editorTarget = null
-        }
-      },
-    )
-  }
-  slotSelection?.let { slot ->
-    SlotCoursesDialog(
-      title = "${slot.day.displayName()} 第 ${slot.period.number} 节的课程",
-      items = slot.items,
-      onSelect = { item ->
-        slotSelection = null
-        editorTarget = CourseEditorTarget.Existing(item, slot.period)
-      },
-      onAdd = {
-        slotSelection = null
-        editorTarget = CourseEditorTarget.New(slot.day, slot.period)
-      },
-      onDismiss = { slotSelection = null },
-    )
-  }
+  TimetableSettingsFlow(
+    page = settingsPage,
+    state = state,
+    onPageChange = { settingsPage = it },
+    onLayoutSave = viewModel::updateLayout,
+    onReminderSave = viewModel::updateReminderSettings,
+    onReminderPermissionRequest = onReminderPermissionRequest,
+  )
+  CourseEditingFlow(
+    state = state,
+    editorTarget = editorTarget,
+    slotSelection = slotSelection,
+    onEditorTargetChange = { editorTarget = it },
+    onSlotSelectionChange = { slotSelection = it },
+    onAdd = viewModel::addMeeting,
+    onUpdate = viewModel::updateMeeting,
+    onDelete = viewModel::deleteMeeting,
+    onReminderPermissionRequest = onReminderPermissionRequest,
+  )
   conflictWarning?.let { warning ->
     AlertDialog(
       onDismissRequest = { conflictWarning = null },
@@ -152,6 +118,3 @@ fun MainRoute(
     )
   }
 }
-
-private fun DayOfWeek.displayName(): String =
-  listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")[value - 1]

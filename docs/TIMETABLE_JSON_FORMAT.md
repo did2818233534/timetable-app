@@ -9,6 +9,7 @@
 - `periods`：一天可能使用的全部节次、具体上下课时间和显示开关，应用没有固定节数。
 - `visibleDays`：需要显示的星期列。即使当天没有课程，只要星期仍在数组中就会保留空列。
 - `hideEmptyDays`：是否自动隐藏整学期完全没有课程的星期；为 `false` 时严格保留 `visibleDays` 中的空列。
+- `reminderSettings`：课表级提醒策略，决定默认是否提醒全部课程或每天第一节课。
 - `courses`：课程及其一组或多组上课安排；刚新建的空课表可使用空数组。
 
 ## 上课安排
@@ -25,6 +26,26 @@
 
 课程还可以设置可选的 `teacher` 和 `color`。颜色使用 `#RRGGBB` 或 `#AARRGGBB`；省略时应用会自动分配颜色。旧文件中的 `classroom` 仍可导入，并会自动作为备注使用。
 
+## 提醒设置
+
+顶层 `reminderSettings` 包含：
+
+- `scope`：`DISABLED`（关闭）、`ALL_CLASSES`（每节课）或 `FIRST_CLASS_OF_DAY`（每天第一节课）。
+- `minutesBefore`：提前分钟数，范围为 `0` 至 `180`。
+- `delivery`：`POPUP`（醒目弹窗通知）或 `ALARM`（持续响铃的闹钟提醒）。
+
+每个 `meetings` 项可以增加 `reminder` 覆盖全局策略。`enabled: true` 表示单独开启，并使用该项自己的 `minutesBefore` 和 `delivery`；`enabled: false` 表示单独关闭；省略 `reminder` 表示继承全局设置。例如：
+
+```json
+"reminder": {
+  "enabled": true,
+  "minutesBefore": 20,
+  "delivery": "ALARM"
+}
+```
+
+升级旧 JSON 时，省略 `reminderSettings` 等同于 `DISABLED`，不会自动产生提醒。
+
 每个 `periods` 项包含节次 `number`、`startTime`、`endTime` 和 `visible`。时间使用 24 小时制 `HH:mm`；增加数组项可以适配任意节数，`visible: false` 会保留该节配置但隐藏整行。课程通过 `period` 引用对应节次。可选的 `breakAfter` 只在明确配置时显示分隔文字，默认完全不显示“上午”“下午”“晚上”等时段标签。
 
 导入后可直接点击主界面的“设置”，修改每天节次数量、每节上下课时间、各星期显示状态、节次行显示状态和自动隐藏空星期开关。修改已有节次时间时，该节中的课程会一起迁移；仍有课程的节次不能删除。再次导出时，这些配置会完整写入 JSON。
@@ -37,3 +58,4 @@
 - 文件最大为 1 MB。
 - 导入后的数据保存在应用私有目录，不会写回所选文件。
 - 除应用内“导入”外，也可在 Android 文件管理器中选择“用咕嘎课程表打开”。应用内“导出”会写出同样格式的完整备份。
+- 启用提醒后需要授予 Android 通知权限；为保证准点提醒，还应授予“闹钟与提醒”特殊权限。未授予精确闹钟权限时应用会降级为系统允许的非精确提醒。

@@ -11,6 +11,11 @@
   ],
   "visibleDays": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
   "hideEmptyDays": false,
+  "reminderSettings": {
+    "scope": "DISABLED",
+    "minutesBefore": 10,
+    "delivery": "POPUP"
+  },
   "courses": [
     {
       "name": "示例课程",

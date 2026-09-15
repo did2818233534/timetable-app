@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.TimetableSnapshot
 import com.did2818.timetable.domain.model.WeekScheduleItem
+import com.did2818.timetable.domain.model.ReminderSettings
+import com.did2818.timetable.domain.model.ReminderScope
 import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableRepository
@@ -15,6 +17,7 @@ import com.did2818.timetable.domain.usecase.FindScheduleConflicts
 import com.did2818.timetable.domain.usecase.NewTimetableSpec
 import com.did2818.timetable.domain.usecase.TimetableLayoutEdit
 import com.did2818.timetable.domain.usecase.UpdateTimetableLayout
+import com.did2818.timetable.domain.usecase.UpdateReminderSettings
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -38,6 +41,7 @@ class MainScreenViewModel(
   private val editor: EditTimetable = EditTimetable(),
   private val createEmptyTimetable: CreateEmptyTimetable = CreateEmptyTimetable(),
   private val updateTimetableLayout: UpdateTimetableLayout = UpdateTimetableLayout(),
+  private val updateReminderSettings: UpdateReminderSettings = UpdateReminderSettings(),
 ) : ViewModel() {
   private val initialTimetable = repository.timetable.value
   private val startingWeek =
@@ -64,6 +68,8 @@ class MainScreenViewModel(
   val messages = messageChannel.receiveAsFlow()
   private val conflictChannel = Channel<String>(Channel.BUFFERED)
   val conflictWarnings = conflictChannel.receiveAsFlow()
+  private val reminderPermissionChannel = Channel<Unit>(Channel.BUFFERED)
+  val reminderPermissionRequests = reminderPermissionChannel.receiveAsFlow()
   private var copiedItem: WeekScheduleItem? = null
 
   fun importDocument(document: String) {
@@ -72,6 +78,7 @@ class MainScreenViewModel(
         .onSuccess { timetable ->
           selectedWeek.value = timetable.term.weekNumberOn(LocalDate.now(clock)) ?: 1
           onImported()
+          if (timetable.hasEnabledReminders()) reminderPermissionChannel.send(Unit)
           val conflictCount = FindScheduleConflicts()(timetable.meetings).size
           if (conflictCount > 0) conflictChannel.send("已导入课表，其中有 $conflictCount 处时间冲突。")
           else messageChannel.send("已导入 ${timetable.courses.size} 门课程")
@@ -123,6 +130,10 @@ class MainScreenViewModel(
     save("课表设置已保存", onSuccess) { updateTimetableLayout(it, edit) }
   }
 
+  fun updateReminderSettings(settings: ReminderSettings, onSuccess: () -> Unit = {}) {
+    save("提醒设置已保存", onSuccess) { updateReminderSettings(it, settings) }
+  }
+
   fun copyMeeting(item: WeekScheduleItem) {
     copiedItem = item
     messageChannel.trySend("已复制“${item.course.name}”，长按空白格可粘贴")
@@ -159,3 +170,7 @@ class MainScreenViewModel(
     }
   }
 }
+
+private fun TimetableSnapshot.hasEnabledReminders(): Boolean =
+  reminderSettings.scope != ReminderScope.DISABLED ||
+    meetings.any { it.reminderOverride?.enabled == true }

@@ -17,9 +17,11 @@ import com.did2818.timetable.presentation.navigation.MainNavigation
 import com.did2818.timetable.presentation.theme.TimetableAppTheme
 import com.did2818.timetable.di.appContainer
 import com.did2818.timetable.widget.RollingWeekWidgetUpdater
+import com.did2818.timetable.reminder.ReminderPermissionRequester
 
 class MainActivity : ComponentActivity() {
   private var incomingDocumentUri by mutableStateOf<Uri?>(null)
+  private val reminderPermissionRequester = ReminderPermissionRequester(this)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -38,7 +40,9 @@ class MainActivity : ComponentActivity() {
             onExternalDocumentHandled = { incomingDocumentUri = null },
             onImported = {
               RollingWeekWidgetUpdater(this, container.timetableRepository).updateAll()
+              container.reminderScheduler.reschedule(container.timetableRepository.timetable.value)
             },
+            onReminderPermissionRequest = reminderPermissionRequester::request,
           )
         }
       }
@@ -49,5 +53,11 @@ class MainActivity : ComponentActivity() {
     super.onNewIntent(intent)
     setIntent(intent)
     incomingDocumentUri = intent.timetableDocumentUri()
+  }
+
+  override fun onResume() {
+    super.onResume()
+    val container = appContainer
+    container.reminderScheduler.reschedule(container.timetableRepository.timetable.value)
   }
 }

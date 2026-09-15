@@ -20,6 +20,7 @@ fun MainNavigation(
   externalDocumentUri: Uri?,
   onExternalDocumentHandled: () -> Unit,
   onImported: () -> Unit,
+  onReminderPermissionRequest: () -> Unit,
 ) {
   val backStack = rememberNavBackStack(Main)
 
@@ -36,6 +37,7 @@ fun MainNavigation(
             externalDocumentUri = externalDocumentUri,
             onExternalDocumentHandled = onExternalDocumentHandled,
             onImported = onImported,
+            onReminderPermissionRequest = onReminderPermissionRequest,
             modifier = Modifier.safeDrawingPadding(),
           )
         }

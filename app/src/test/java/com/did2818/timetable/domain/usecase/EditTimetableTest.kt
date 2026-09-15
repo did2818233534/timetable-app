@@ -3,6 +3,8 @@ package com.did2818.timetable.domain.usecase
 import com.did2818.timetable.data.sample.SampleTimetableRepository
 import com.did2818.timetable.domain.model.WeekParity
 import com.did2818.timetable.domain.model.WeekPattern
+import com.did2818.timetable.domain.model.ReminderDelivery
+import com.did2818.timetable.domain.model.ReminderOverride
 import com.did2818.timetable.domain.usecase.BuildWeekSchedule
 import java.time.DayOfWeek
 import org.junit.Assert.assertEquals
@@ -63,5 +65,20 @@ class EditTimetableTest {
     val updated = editor.paste(timetable, copied, occupied.dayOfWeek, period.number)
 
     assertEquals(1, FindScheduleConflicts()(updated.meetings).size)
+  }
+
+  @Test
+  fun update_savesPerMeetingReminderOverride() {
+    val meeting = timetable.meetings.first()
+    val reminder = ReminderOverride(true, 25, ReminderDelivery.ALARM)
+
+    val updated =
+      editor.update(
+        timetable,
+        meeting.id,
+        ClassEdit("高等数学", "A101", meeting.weekPattern, reminder),
+      )
+
+    assertEquals(reminder, updated.meetings.single { it.id == meeting.id }.reminderOverride)
   }
 }

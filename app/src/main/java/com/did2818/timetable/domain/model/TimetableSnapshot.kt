@@ -10,6 +10,7 @@ data class TimetableSnapshot(
   val meetings: List<ClassMeeting>,
   val visibleDays: Set<DayOfWeek> = DayOfWeek.entries.toSet(),
   val hideEmptyDays: Boolean = false,
+  val reminderSettings: ReminderSettings = ReminderSettings(),
 ) {
   init {
     require(visibleDays.isNotEmpty()) { "At least one weekday must be visible" }

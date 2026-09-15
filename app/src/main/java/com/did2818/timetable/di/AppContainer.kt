@@ -10,6 +10,7 @@ import com.did2818.timetable.data.defaults.emptyTimetable
 import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableRepository
+import com.did2818.timetable.reminder.ReminderScheduler
 
 class AppContainer(context: Context) {
   private val codec = TimetableJsonCodec()
@@ -18,6 +19,7 @@ class AppContainer(context: Context) {
     FileTimetableRepository(context.filesDir, emptyTimetable(), codec)
   val timetableImporter: TimetableImporter = JsonTimetableImporter(timetableRepository, codec)
   val timetableExporter: TimetableExporter = JsonTimetableExporter(codec)
+  val reminderScheduler: ReminderScheduler = ReminderScheduler(context)
 }
 
 val Context.appContainer: AppContainer

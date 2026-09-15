@@ -26,6 +26,7 @@ internal class TimetableDocumentMapper {
       meetings,
       document.visibleDays.toVisibleDays(),
       document.hideEmptyDays,
+      document.reminderSettings.toModel(),
     )
   }
 
@@ -36,6 +37,7 @@ internal class TimetableDocumentMapper {
       periods = timetable.periods.map(ClassPeriod::toDocument),
       visibleDays = timetable.visibleDays.sortedBy { it.value }.map { it.name },
       hideEmptyDays = timetable.hideEmptyDays,
+      reminderSettings = timetable.reminderSettings.toDocument(),
       courses = timetable.courses.map { it.toDocument(timetable) },
     )
 

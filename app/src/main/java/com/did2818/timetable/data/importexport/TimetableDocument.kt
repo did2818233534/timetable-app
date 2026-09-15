@@ -15,7 +15,19 @@ internal data class TimetableDocument(
     listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"),
   @EncodeDefault
   val hideEmptyDays: Boolean = false,
+  @EncodeDefault
+  val reminderSettings: ReminderSettingsDocument = ReminderSettingsDocument(),
   val courses: List<CourseDocument>,
+)
+
+@Serializable
+internal data class ReminderSettingsDocument(
+  @EncodeDefault
+  val scope: String = "DISABLED",
+  @EncodeDefault
+  val minutesBefore: Int = 10,
+  @EncodeDefault
+  val delivery: String = "POPUP",
 )
 
 @Serializable
@@ -55,4 +67,14 @@ internal data class MeetingDocument(
   val parity: String = "EVERY_WEEK",
   val excludedWeeks: Set<Int> = emptySet(),
   val activeWeeks: Set<Int>? = null,
+  val reminder: ReminderOverrideDocument? = null,
+)
+
+@Serializable
+internal data class ReminderOverrideDocument(
+  val enabled: Boolean,
+  @EncodeDefault
+  val minutesBefore: Int = 10,
+  @EncodeDefault
+  val delivery: String = "POPUP",
 )

@@ -47,6 +47,8 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 桌面组件：`TimetableRepository.timetable.value` → 可见星期/节次过滤 → `BuildRollingSchedule` → 动态 `RemoteViews` 行列 → Android Launcher。
 
+课程提醒：`ReminderSettings` 与单节覆盖 → `BuildReminderOccurrences` 纯领域用例 → `ReminderScheduler` 维护未来八天的系统闹钟 → `ReminderAlarmReceiver` → 弹窗通知或持续响铃服务。开机、跨日、系统时间/时区变化及精确闹钟授权后统一重新排程；课程表任何修改也会刷新排程。
+
 `TimetableSnapshot` 是一次一致读取所需的聚合，负责保证节次编号和课程编号唯一，并拒绝引用不存在课程的上课安排。周界面和七日小组件分别使用 `BuildWeekSchedule` 与 `BuildRollingSchedule`，因此单双周、起止周等规则不会散落在渲染层。
 
 ## 扩展位置

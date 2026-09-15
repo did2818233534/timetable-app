@@ -13,6 +13,7 @@ data class ClassMeeting(
   val classroom: String = "",
   val note: String = "",
   val weekPattern: WeekPattern,
+  val reminderOverride: ReminderOverride? = null,
 ) {
   init {
     require(id.isNotBlank()) { "Meeting id cannot be blank" }

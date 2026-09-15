@@ -2,6 +2,7 @@ package com.did2818.timetable.presentation.timetable
 
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.WeekScheduleItem
+import com.did2818.timetable.domain.model.ReminderSettings
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -17,5 +18,6 @@ data class MainScreenUiState(
   val configuredDays: Set<DayOfWeek>,
   val visibleDays: List<DayOfWeek>,
   val hideEmptyDays: Boolean,
+  val reminderSettings: ReminderSettings,
   val items: List<WeekScheduleItem>,
 )
