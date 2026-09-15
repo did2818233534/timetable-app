@@ -10,6 +10,7 @@
     { "number": 2, "startTime": "10:00", "endTime": "11:35", "visible": true }
   ],
   "visibleDays": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+  "hideEmptyDays": false,
   "courses": [
     {
       "name": "示例课程",

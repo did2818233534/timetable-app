@@ -35,6 +35,8 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 应用内编辑：表格手势 → 编辑对话框或复制缓冲区 → `EditTimetable` 纯领域用例 → 冲突检测 → `TimetableRepository.replace` → 小组件刷新。
 
+课表布局设置：设置表单 → `TimetableLayoutFormParser` → `UpdateTimetableLayout` → 已有课程随节次时间迁移 → `TimetableRepository.replace`。星期列由 `ResolveVisibleDays` 统一解析，主界面与小组件共享“固定显示 / 自动隐藏整学期空星期”规则。
+
 同格显示：候选课程 → `SelectSlotDisplay` → 本周有效课程 / 最近的未来课程 / 最后的历史课程。冲突数据不会丢弃，由 `FindScheduleConflicts` 生成警告，界面负责显示冲突标记。
 
 文件导入：系统文件选择器或 Android `VIEW/SEND` 文件关联 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.replace` → 私有文件持久化。

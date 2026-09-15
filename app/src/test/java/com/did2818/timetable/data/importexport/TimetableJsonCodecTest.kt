@@ -31,6 +31,7 @@ class TimetableJsonCodecTest {
     assertEquals(WeekParity.ODD_WEEKS, meeting.weekPattern.parity)
     assertEquals(setOf(5), meeting.weekPattern.excludedWeeks)
     assertEquals(setOf(1, 7), meeting.weekPattern.activeWeeks)
+    assertEquals(false, timetable.hideEmptyDays)
   }
 
   @Test
@@ -45,6 +46,15 @@ class TimetableJsonCodecTest {
     val timetable = codec.decode(validDocument).copy(courses = emptyList(), meetings = emptyList())
 
     assertEquals(timetable, codec.decode(codec.encode(timetable)))
+  }
+
+  @Test
+  fun encode_writesEditableLayoutSettingsExplicitly() {
+    val document = codec.encode(codec.decode(validDocument).copy(hideEmptyDays = true))
+
+    assertEquals(true, document.contains("\"visibleDays\""))
+    assertEquals(true, document.contains("\"hideEmptyDays\": true"))
+    assertEquals(true, document.contains("\"visible\": true"))
   }
 
   @Test

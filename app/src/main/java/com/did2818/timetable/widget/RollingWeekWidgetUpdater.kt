@@ -5,12 +5,14 @@ import android.content.ComponentName
 import android.content.Context
 import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.domain.usecase.BuildRollingSchedule
+import com.did2818.timetable.domain.usecase.ResolveVisibleDays
 import java.time.LocalDate
 
 class RollingWeekWidgetUpdater(
   private val context: Context,
   private val repository: TimetableRepository,
   private val buildSchedule: BuildRollingSchedule = BuildRollingSchedule(),
+  private val resolveVisibleDays: ResolveVisibleDays = ResolveVisibleDays(),
   private val renderer: RollingWeekRemoteViewsRenderer = RollingWeekRemoteViewsRenderer(context),
 ) {
   private val widgetManager = AppWidgetManager.getInstance(context)
@@ -20,10 +22,11 @@ class RollingWeekWidgetUpdater(
     today: LocalDate = LocalDate.now(),
   ) {
     val timetable = repository.timetable.value
+    val visibleDays = resolveVisibleDays(timetable).toSet()
     val schedule =
       buildSchedule(today, DAYS_TO_SHOW, timetable)
-        .filter { it.date.dayOfWeek in timetable.visibleDays }
-    val periods = timetable.periods.filter { it.visible }
+        .filter { it.date.dayOfWeek in visibleDays }
+    val periods = if (schedule.isEmpty()) emptyList() else timetable.periods.filter { it.visible }
     widgetIds.forEach { widgetId ->
       widgetManager.updateAppWidget(widgetId, renderer.render(periods, schedule))
     }

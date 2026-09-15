@@ -24,10 +24,10 @@ class RollingWeekRemoteViewsRenderer(private val context: Context) {
 
   private fun RemoteViews.bindHeader(days: List<DaySchedule>) {
     setTextViewText(R.id.widget_title, "未来 7 天")
-    setTextViewText(
-      R.id.widget_range,
-      "${days.first().date.widgetDateText()}–${days.last().date.widgetDateText()}",
-    )
+    val range =
+      if (days.isEmpty()) "暂无课程"
+      else "${days.first().date.widgetDateText()}–${days.last().date.widgetDateText()}"
+    setTextViewText(R.id.widget_range, range)
   }
 
   private fun RemoteViews.bindDayColumns(days: List<DaySchedule>) {

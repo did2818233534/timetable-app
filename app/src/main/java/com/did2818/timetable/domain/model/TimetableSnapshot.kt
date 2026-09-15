@@ -9,11 +9,15 @@ data class TimetableSnapshot(
   val courses: List<Course>,
   val meetings: List<ClassMeeting>,
   val visibleDays: Set<DayOfWeek> = DayOfWeek.entries.toSet(),
+  val hideEmptyDays: Boolean = false,
 ) {
   init {
     require(visibleDays.isNotEmpty()) { "At least one weekday must be visible" }
     require(periods.map(ClassPeriod::number).distinct().size == periods.size) {
       "Period numbers must be unique"
+    }
+    require(periods.map { it.startTime to it.endTime }.distinct().size == periods.size) {
+      "Period times must be unique"
     }
     require(courses.map(Course::id).distinct().size == courses.size) {
       "Course ids must be unique"

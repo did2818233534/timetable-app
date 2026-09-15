@@ -28,4 +28,16 @@ class MainScreenStateFactoryTest {
     assertEquals(true, DayOfWeek.SATURDAY in state.visibleDays)
     assertEquals(false, DayOfWeek.SUNDAY in state.visibleDays)
   }
+
+  @Test
+  fun state_autoHidesWeekdaysWithoutCourses() {
+    val source = SampleTimetableRepository().timetable.value.copy(hideEmptyDays = true)
+
+    val state = MainScreenStateFactory().create(source, requestedWeek = 2)
+
+    assertEquals(
+      listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+      state.visibleDays,
+    )
+  }
 }

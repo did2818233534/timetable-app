@@ -19,7 +19,14 @@ internal class TimetableDocumentMapper {
     val periods = document.periods.map(PeriodDocument::toModel)
     val courses = document.courses.mapIndexed { index, course -> course.toModel(index) }
     val meetings = buildMeetings(document.courses, courses, periods, term.totalWeeks)
-    return TimetableSnapshot(term, periods, courses, meetings, document.visibleDays.toVisibleDays())
+    return TimetableSnapshot(
+      term,
+      periods,
+      courses,
+      meetings,
+      document.visibleDays.toVisibleDays(),
+      document.hideEmptyDays,
+    )
   }
 
   fun fromSnapshot(timetable: TimetableSnapshot): TimetableDocument =
@@ -28,6 +35,7 @@ internal class TimetableDocumentMapper {
       term = timetable.term.toDocument(),
       periods = timetable.periods.map(ClassPeriod::toDocument),
       visibleDays = timetable.visibleDays.sortedBy { it.value }.map { it.name },
+      hideEmptyDays = timetable.hideEmptyDays,
       courses = timetable.courses.map { it.toDocument(timetable) },
     )
 

@@ -26,6 +26,7 @@ import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.domain.usecase.ClassEdit
 import com.did2818.timetable.presentation.timetable.components.CourseEditorDialog
 import com.did2818.timetable.presentation.timetable.components.SlotCoursesDialog
+import com.did2818.timetable.presentation.timetable.components.TimetableLayoutSettingsDialog
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -48,6 +49,7 @@ fun MainRoute(
   var slotSelection by remember { mutableStateOf<SlotSelection?>(null) }
   var conflictWarning by remember { mutableStateOf<String?>(null) }
   var newTimetableStep by remember { mutableStateOf(NewTimetableStep.CLOSED) }
+  var showLayoutSettings by remember { mutableStateOf(false) }
   val fileActions =
     rememberTimetableFileActions(
       externalDocumentUri = externalDocumentUri,
@@ -71,6 +73,7 @@ fun MainRoute(
         newTimetableStep =
           if (state.hasTimetable) NewTimetableStep.CONFIRM_REPLACE else NewTimetableStep.EDIT
       },
+      onSettingsClick = { showLayoutSettings = true },
       onOpenCell = { day, period, items ->
         if (items.isEmpty()) editorTarget = CourseEditorTarget.New(day, period)
         else slotSelection = SlotSelection(day, period, items)
@@ -89,6 +92,15 @@ fun MainRoute(
       newTimetableStep = NewTimetableStep.CLOSED
     },
   )
+  if (showLayoutSettings) {
+    TimetableLayoutSettingsDialog(
+      periods = state.allPeriods,
+      configuredDays = state.configuredDays,
+      initialHideEmptyDays = state.hideEmptyDays,
+      onDismiss = { showLayoutSettings = false },
+      onSave = { edit -> viewModel.updateLayout(edit) { showLayoutSettings = false } },
+    )
+  }
   editorTarget?.let { target ->
     val existing = (target as? CourseEditorTarget.Existing)?.item
     CourseEditorDialog(

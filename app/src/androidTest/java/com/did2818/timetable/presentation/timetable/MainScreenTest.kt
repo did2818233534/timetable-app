@@ -26,6 +26,7 @@ class MainScreenTest {
   private val selectedWeeks = mutableListOf<Int>()
   private var copyCount = 0
   private var pasteCount = 0
+  private var settingsCount = 0
   private val openedCellSizes = mutableListOf<Int>()
 
   @Before
@@ -43,6 +44,7 @@ class MainScreenTest {
         onImportClick = {},
         onExportClick = {},
         onNewClick = {},
+        onSettingsClick = { settingsCount++ },
         onOpenCell = { _, _, items -> openedCellSizes += items.size },
         onCopyItem = { copyCount++ },
         onPasteCell = { _, _ -> pasteCount++ },
@@ -68,6 +70,9 @@ class MainScreenTest {
     composeTestRule.onNodeWithText("导入").assertHasClickAction()
     composeTestRule.onNodeWithText("导出").assertHasClickAction()
     composeTestRule.onNodeWithText("新建").assertHasClickAction()
+    composeTestRule.onNodeWithText("设置").assertHasClickAction()
+    composeTestRule.onNodeWithText("设置").performClick()
+    composeTestRule.runOnIdle { assertEquals(1, settingsCount) }
   }
 
   @Test

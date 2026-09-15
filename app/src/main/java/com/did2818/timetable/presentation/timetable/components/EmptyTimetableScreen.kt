@@ -26,7 +26,9 @@ fun EmptyTimetableScreen(
       onImportClick = onImportClick,
       onExportClick = {},
       onNewClick = onNewClick,
+      onSettingsClick = {},
       exportEnabled = false,
+      settingsEnabled = false,
     )
     Column(
       verticalArrangement = Arrangement.Center,

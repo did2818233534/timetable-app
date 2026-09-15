@@ -12,7 +12,10 @@ data class MainScreenUiState(
   val totalWeeks: Int,
   val weekStart: LocalDate,
   val weekEnd: LocalDate,
+  val allPeriods: List<ClassPeriod>,
   val periods: List<ClassPeriod>,
+  val configuredDays: Set<DayOfWeek>,
   val visibleDays: List<DayOfWeek>,
+  val hideEmptyDays: Boolean,
   val items: List<WeekScheduleItem>,
 )

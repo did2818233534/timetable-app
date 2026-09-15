@@ -2,6 +2,8 @@ package com.did2818.timetable.presentation.timetable.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,7 +22,9 @@ fun TimetableToolbar(
   onImportClick: () -> Unit,
   onExportClick: () -> Unit,
   onNewClick: () -> Unit,
+  onSettingsClick: () -> Unit,
   exportEnabled: Boolean = true,
+  settingsEnabled: Boolean = true,
 ) {
   Row(
     verticalAlignment = Alignment.CenterVertically,
@@ -34,8 +38,19 @@ fun TimetableToolbar(
       overflow = TextOverflow.Ellipsis,
       modifier = Modifier.weight(1f),
     )
-    TextButton(onClick = onImportClick) { Text("导入") }
-    TextButton(onClick = onExportClick, enabled = exportEnabled) { Text("导出") }
-    TextButton(onClick = onNewClick) { Text("新建") }
+    ToolbarAction("导入", onImportClick)
+    ToolbarAction("导出", onExportClick, exportEnabled)
+    ToolbarAction("新建", onNewClick)
+    ToolbarAction("设置", onSettingsClick, settingsEnabled)
   }
+}
+
+@Composable
+private fun ToolbarAction(text: String, onClick: () -> Unit, enabled: Boolean = true) {
+  TextButton(
+    onClick = onClick,
+    enabled = enabled,
+    contentPadding = PaddingValues(horizontal = 7.dp),
+    modifier = Modifier.defaultMinSize(minWidth = 0.dp),
+  ) { Text(text) }
 }

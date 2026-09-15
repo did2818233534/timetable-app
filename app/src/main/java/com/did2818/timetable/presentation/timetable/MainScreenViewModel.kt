@@ -13,6 +13,8 @@ import com.did2818.timetable.domain.usecase.CreateEmptyTimetable
 import com.did2818.timetable.domain.usecase.EditTimetable
 import com.did2818.timetable.domain.usecase.FindScheduleConflicts
 import com.did2818.timetable.domain.usecase.NewTimetableSpec
+import com.did2818.timetable.domain.usecase.TimetableLayoutEdit
+import com.did2818.timetable.domain.usecase.UpdateTimetableLayout
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -35,6 +37,7 @@ class MainScreenViewModel(
   private val stateFactory: MainScreenStateFactory = MainScreenStateFactory(),
   private val editor: EditTimetable = EditTimetable(),
   private val createEmptyTimetable: CreateEmptyTimetable = CreateEmptyTimetable(),
+  private val updateTimetableLayout: UpdateTimetableLayout = UpdateTimetableLayout(),
 ) : ViewModel() {
   private val initialTimetable = repository.timetable.value
   private val startingWeek =
@@ -116,6 +119,10 @@ class MainScreenViewModel(
     save("课程已删除") { editor.delete(it, item.meeting.id) }
   }
 
+  fun updateLayout(edit: TimetableLayoutEdit, onSuccess: () -> Unit = {}) {
+    save("课表设置已保存", onSuccess) { updateTimetableLayout(it, edit) }
+  }
+
   fun copyMeeting(item: WeekScheduleItem) {
     copiedItem = item
     messageChannel.trySend("已复制“${item.course.name}”，长按空白格可粘贴")
@@ -130,7 +137,11 @@ class MainScreenViewModel(
     save("课程已粘贴") { editor.paste(it, copied, day, period.number) }
   }
 
-  private fun save(message: String, change: (TimetableSnapshot) -> TimetableSnapshot) {
+  private fun save(
+    message: String,
+    onSuccess: () -> Unit = {},
+    change: (TimetableSnapshot) -> TimetableSnapshot,
+  ) {
     viewModelScope.launch {
       runCatching {
           val updated = change(repository.timetable.value)
@@ -139,6 +150,7 @@ class MainScreenViewModel(
         }
         .onSuccess { conflictCount ->
           onImported()
+          onSuccess()
           if (conflictCount > 0) {
             conflictChannel.send("$message，但当前课表有 $conflictCount 处时间冲突。冲突格会显示 !。")
           } else messageChannel.send(message)

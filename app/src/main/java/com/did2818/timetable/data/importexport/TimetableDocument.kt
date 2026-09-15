@@ -1,5 +1,8 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package com.did2818.timetable.data.importexport
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -7,8 +10,11 @@ internal data class TimetableDocument(
   val formatVersion: Int,
   val term: TermDocument,
   val periods: List<PeriodDocument>,
+  @EncodeDefault
   val visibleDays: List<String> =
     listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"),
+  @EncodeDefault
+  val hideEmptyDays: Boolean = false,
   val courses: List<CourseDocument>,
 )
 
@@ -25,6 +31,7 @@ internal data class PeriodDocument(
   val startTime: String,
   val endTime: String,
   val breakAfter: String? = null,
+  @EncodeDefault
   val visible: Boolean = true,
 )
 
