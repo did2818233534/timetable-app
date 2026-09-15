@@ -1,27 +1,60 @@
 package com.did2818.timetable.presentation.timetable
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.did2818.timetable.data.repository.DataRepository
-import com.did2818.timetable.presentation.timetable.MainScreenUiState.Success
-import kotlinx.coroutines.flow.SharingStarted
+import com.did2818.timetable.data.sample.SampleTimetableData
+import com.did2818.timetable.domain.model.AcademicTerm
+import com.did2818.timetable.domain.model.ClassMeeting
+import com.did2818.timetable.domain.model.Course
+import com.did2818.timetable.domain.model.WeekScheduleItem
+import com.did2818.timetable.domain.usecase.BuildWeekSchedule
+import java.time.Clock
+import java.time.DayOfWeek
+import java.time.LocalDate
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 
-class MainScreenViewModel(dataRepository: DataRepository) : ViewModel() {
-  val uiState: StateFlow<MainScreenUiState> =
-    dataRepository.data
-      .map<List<String>, MainScreenUiState>(::Success)
-      .catch { emit(MainScreenUiState.Error(it)) }
-      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState.Loading)
+class MainScreenViewModel(
+  private val term: AcademicTerm = SampleTimetableData.term,
+  private val courses: List<Course> = SampleTimetableData.courses,
+  private val meetings: List<ClassMeeting> = SampleTimetableData.meetings,
+  private val buildWeekSchedule: BuildWeekSchedule = BuildWeekSchedule(),
+  clock: Clock = Clock.systemDefaultZone(),
+  initialWeek: Int? = null,
+) : ViewModel() {
+  private val startingWeek =
+    initialWeek?.coerceIn(1, term.totalWeeks)
+      ?: term.weekNumberOn(LocalDate.now(clock))
+      ?: 1
+
+  private val _uiState = MutableStateFlow(stateFor(startingWeek))
+  val uiState: StateFlow<MainScreenUiState> = _uiState.asStateFlow()
+
+  fun showPreviousWeek() = selectWeek(_uiState.value.selectedWeek - 1)
+
+  fun showNextWeek() = selectWeek(_uiState.value.selectedWeek + 1)
+
+  fun selectWeek(week: Int) {
+    if (week !in 1..term.totalWeeks || week == _uiState.value.selectedWeek) return
+    _uiState.value = stateFor(week)
+  }
+
+  private fun stateFor(week: Int) =
+    MainScreenUiState(
+      termName = term.name,
+      selectedWeek = week,
+      totalWeeks = term.totalWeeks,
+      weekStart = term.dateOf(week, DayOfWeek.MONDAY),
+      weekEnd = term.dateOf(week, DayOfWeek.SUNDAY),
+      items = buildWeekSchedule(week, courses, meetings),
+    )
 }
 
-sealed interface MainScreenUiState {
-  object Loading : MainScreenUiState
-
-  data class Error(val throwable: Throwable) : MainScreenUiState
-
-  data class Success(val data: List<String>) : MainScreenUiState
-}
+data class MainScreenUiState(
+  val termName: String,
+  val selectedWeek: Int,
+  val totalWeeks: Int,
+  val weekStart: LocalDate,
+  val weekEnd: LocalDate,
+  val items: List<WeekScheduleItem>,
+)

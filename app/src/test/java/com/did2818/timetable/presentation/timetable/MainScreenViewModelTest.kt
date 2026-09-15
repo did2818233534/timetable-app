@@ -1,27 +1,30 @@
 package com.did2818.timetable.presentation.timetable
 
-import com.did2818.timetable.data.repository.DataRepository
-import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class MainScreenViewModelTest {
   @Test
-  fun uiState_initiallyLoading() = runTest {
-    val viewModel = MainScreenViewModel(FakeMyModelRepository())
-    assertEquals(viewModel.uiState.first(), MainScreenUiState.Loading)
+  fun weekNavigation_updatesScheduleAndStopsAtTermBoundaries() {
+    val viewModel = MainScreenViewModel(initialWeek = 2)
+
+    viewModel.showPreviousWeek()
+    assertEquals(1, viewModel.uiState.value.selectedWeek)
+
+    viewModel.showPreviousWeek()
+    assertEquals(1, viewModel.uiState.value.selectedWeek)
+
+    viewModel.selectWeek(18)
+    viewModel.showNextWeek()
+    assertEquals(18, viewModel.uiState.value.selectedWeek)
   }
 
   @Test
-  fun uiState_onItemSaved_isDisplayed() = runTest {
-    val viewModel = MainScreenViewModel(FakeMyModelRepository())
-    assertEquals(viewModel.uiState.first(), MainScreenUiState.Loading)
-  }
-}
+  fun evenWeek_marksOddCourseInactiveAndEvenCourseActive() {
+    val viewModel = MainScreenViewModel(initialWeek = 2)
+    val stateByCourse = viewModel.uiState.value.items.associateBy { it.course.id }
 
-private class FakeMyModelRepository : DataRepository {
-  override val data: Flow<List<String>> = flow { emit(listOf("Sample")) }
+    assertEquals(false, stateByCourse.getValue("physics").isActive)
+    assertEquals(true, stateByCourse.getValue("programming").isActive)
+  }
 }

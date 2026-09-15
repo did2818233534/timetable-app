@@ -32,3 +32,10 @@ app/src/main/java/com/did2818/timetable/
 source /etc/profile.d/android-dev.sh
 ./gradlew testDebugUnitTest assembleDebug
 ```
+
+## 当前进度
+
+- 已建立学期、课程、上课安排和周数规则等领域模型。
+- 已支持每周、单周、双周、起止周与排除周计算。
+- 已支持构建保留非本周课程的周课表数据，供界面灰显。
+- 已支持按星期、时间和实际生效周检测课程冲突。
