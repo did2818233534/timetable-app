@@ -2,11 +2,13 @@ package com.did2818.timetable.presentation.timetable
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -21,8 +23,7 @@ import org.junit.Test
 /** UI tests for [MainScreen]. */
 class MainScreenTest {
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-  private var previousCount = 0
-  private var nextCount = 0
+  private val selectedWeeks = mutableListOf<Int>()
   private var copyCount = 0
   private var pasteCount = 0
   private val openedCellSizes = mutableListOf<Int>()
@@ -37,9 +38,11 @@ class MainScreenTest {
     composeTestRule.setContent {
       MainScreen(
         state = state,
-        onPreviousWeek = { previousCount++ },
-        onNextWeek = { nextCount++ },
+        stateForWeek = { MainScreenStateFactory().create(SampleTimetableRepository().timetable.value, it) },
+        onSelectWeek = { selectedWeeks += it },
         onImportClick = {},
+        onExportClick = {},
+        onNewClick = {},
         onOpenCell = { _, _, items -> openedCellSizes += items.size },
         onCopyItem = { copyCount++ },
         onPasteCell = { _, _ -> pasteCount++ },
@@ -50,38 +53,42 @@ class MainScreenTest {
   @Test
   fun schedule_displaysWeekAndCourses() {
     composeTestRule.onNodeWithText("第 2 周").assertExists()
-    composeTestRule.onNodeWithText("周日").assertExists()
-    composeTestRule.onNodeWithText("高等数学").assertExists()
-    composeTestRule.onNodeWithText("大学物理").assertExists()
+    composeTestRule.onNode(hasText("周日") and inWeek(2)).assertExists()
+    composeTestRule.onNode(hasText("高等数学") and inWeek(2)).assertExists()
+    composeTestRule.onNode(hasText("大学物理") and inWeek(2)).assertExists()
   }
 
   @Test
   fun inactiveOddWeekCourse_isMarkedAsNotTakingPlace() {
-    composeTestRule.onNode(hasStateDescription("本周不上课")).assertExists()
+    composeTestRule.onNode(hasStateDescription("本周不上课") and inWeek(2)).assertExists()
   }
 
   @Test
-  fun importEntry_isVisibleAndClickable() {
-    composeTestRule.onNodeWithText("导入课表").assertHasClickAction()
+  fun timetableActions_areVisibleAndClickable() {
+    composeTestRule.onNodeWithText("导入").assertHasClickAction()
+    composeTestRule.onNodeWithText("导出").assertHasClickAction()
+    composeTestRule.onNodeWithText("新建").assertHasClickAction()
   }
 
   @Test
   fun horizontalSwipes_requestAdjacentWeeks() {
-    composeTestRule.onRoot().performTouchInput { swipeLeft() }
-    composeTestRule.onRoot().performTouchInput { swipeRight() }
+    composeTestRule.onNodeWithTag("week-page-2").performTouchInput { swipeLeft() }
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag("week-page-3").performTouchInput { swipeRight() }
 
     composeTestRule.runOnIdle {
-      assertEquals(1, nextCount)
-      assertEquals(1, previousCount)
+      assertEquals(listOf(3, 2), selectedWeeks)
     }
   }
 
   @Test
   fun cells_supportEditCreateCopyAndPasteGestures() {
-    composeTestRule.onNodeWithTag("slot-MONDAY-1").performClick()
-    composeTestRule.onNodeWithTag("slot-MONDAY-1").performTouchInput { longClick() }
-    composeTestRule.onNodeWithTag("slot-SATURDAY-5").performClick()
-    composeTestRule.onNodeWithTag("slot-SATURDAY-5").performTouchInput { longClick() }
+    val monday = hasTestTag("slot-MONDAY-1") and inWeek(2)
+    val saturday = hasTestTag("slot-SATURDAY-5") and inWeek(2)
+    composeTestRule.onNode(monday).performClick()
+    composeTestRule.onNode(monday).performTouchInput { longClick() }
+    composeTestRule.onNode(saturday).performClick()
+    composeTestRule.onNode(saturday).performTouchInput { longClick() }
 
     composeTestRule.runOnIdle {
       assertEquals(listOf(1, 0), openedCellSizes)
@@ -89,4 +96,6 @@ class MainScreenTest {
       assertEquals(1, pasteCount)
     }
   }
+
+  private fun inWeek(week: Int) = hasAnyAncestor(hasTestTag("week-page-$week"))
 }

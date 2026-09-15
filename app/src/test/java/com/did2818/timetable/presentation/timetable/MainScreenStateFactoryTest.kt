@@ -1,11 +1,17 @@
 package com.did2818.timetable.presentation.timetable
 
 import com.did2818.timetable.data.sample.SampleTimetableRepository
+import com.did2818.timetable.data.defaults.emptyTimetable
 import java.time.DayOfWeek
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class MainScreenStateFactoryTest {
+  @Test
+  fun state_marksUnconfiguredFallbackAsEmpty() {
+    assertEquals(false, MainScreenStateFactory().create(emptyTimetable(), 1).hasTimetable)
+  }
+
   @Test
   fun state_usesConfiguredVisiblePeriodsAndDays() {
     val source = SampleTimetableRepository().timetable.value

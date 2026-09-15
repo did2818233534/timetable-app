@@ -15,7 +15,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TimetableToolbar(termName: String, onImportClick: () -> Unit) {
+fun TimetableToolbar(
+  termName: String,
+  onImportClick: () -> Unit,
+  onExportClick: () -> Unit,
+  onNewClick: () -> Unit,
+  exportEnabled: Boolean = true,
+) {
   Row(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween,
@@ -28,6 +34,8 @@ fun TimetableToolbar(termName: String, onImportClick: () -> Unit) {
       overflow = TextOverflow.Ellipsis,
       modifier = Modifier.weight(1f),
     )
-    TextButton(onClick = onImportClick) { Text("导入课表") }
+    TextButton(onClick = onImportClick) { Text("导入") }
+    TextButton(onClick = onExportClick, enabled = exportEnabled) { Text("导出") }
+    TextButton(onClick = onNewClick) { Text("新建") }
   }
 }

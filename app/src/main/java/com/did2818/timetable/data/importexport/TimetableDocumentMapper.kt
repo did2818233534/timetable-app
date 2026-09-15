@@ -15,7 +15,6 @@ internal class TimetableDocumentMapper {
   fun toSnapshot(document: TimetableDocument): TimetableSnapshot {
     require(document.formatVersion == SUPPORTED_VERSION) { "不支持的格式版本" }
     require(document.periods.isNotEmpty()) { "至少需要一个节次" }
-    require(document.courses.isNotEmpty()) { "至少需要一门课程" }
     val term = document.term.toModel()
     val periods = document.periods.map(PeriodDocument::toModel)
     val courses = document.courses.mapIndexed { index, course -> course.toModel(index) }

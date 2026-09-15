@@ -6,10 +6,13 @@ import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.TimetableSnapshot
 import com.did2818.timetable.domain.model.WeekScheduleItem
 import com.did2818.timetable.domain.repository.TimetableImporter
+import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.domain.usecase.ClassEdit
+import com.did2818.timetable.domain.usecase.CreateEmptyTimetable
 import com.did2818.timetable.domain.usecase.EditTimetable
 import com.did2818.timetable.domain.usecase.FindScheduleConflicts
+import com.did2818.timetable.domain.usecase.NewTimetableSpec
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -25,11 +28,13 @@ import kotlinx.coroutines.launch
 class MainScreenViewModel(
   private val repository: TimetableRepository,
   private val importer: TimetableImporter,
+  private val exporter: TimetableExporter = TimetableExporter { error("未配置导出器") },
   private val onImported: () -> Unit = {},
   private val clock: Clock = Clock.systemDefaultZone(),
   initialWeek: Int? = null,
   private val stateFactory: MainScreenStateFactory = MainScreenStateFactory(),
   private val editor: EditTimetable = EditTimetable(),
+  private val createEmptyTimetable: CreateEmptyTimetable = CreateEmptyTimetable(),
 ) : ViewModel() {
   private val initialTimetable = repository.timetable.value
   private val startingWeek =
@@ -46,13 +51,11 @@ class MainScreenViewModel(
         stateFactory.create(initialTimetable, startingWeek),
       )
 
-  fun showPreviousWeek() = selectWeek(selectedWeek.value - 1)
-
-  fun showNextWeek() = selectWeek(selectedWeek.value + 1)
-
   fun selectWeek(week: Int) {
     if (week in 1..repository.timetable.value.term.totalWeeks) selectedWeek.value = week
   }
+
+  fun stateForWeek(week: Int): MainScreenUiState = stateFactory.create(repository.timetable.value, week)
 
   private val messageChannel = Channel<String>(Channel.BUFFERED)
   val messages = messageChannel.receiveAsFlow()
@@ -76,8 +79,29 @@ class MainScreenViewModel(
     }
   }
 
-  fun reportFileReadError(error: Throwable) {
-    messageChannel.trySend(error.message ?: "无法读取课表文件")
+  fun reportFileReadError(error: Throwable) { messageChannel.trySend(error.message ?: "无法读取课表文件") }
+
+  fun reportExportSuccess() { messageChannel.trySend("课表已导出") }
+
+  fun exportDocument(): String {
+    val timetable = repository.timetable.value
+    require(timetable.periods.isNotEmpty()) { "请先新建或导入课程表" }
+    return exporter.export(timetable)
+  }
+
+  fun createTimetable(spec: NewTimetableSpec) {
+    viewModelScope.launch {
+      runCatching {
+          val timetable = createEmptyTimetable(spec)
+          repository.replace(timetable)
+          selectedWeek.value = timetable.term.weekNumberOn(LocalDate.now(clock)) ?: 1
+        }
+        .onSuccess {
+          onImported()
+          messageChannel.send("新课程表已创建，可以点击格子添加课程")
+        }
+        .onFailure { error -> messageChannel.send(error.message ?: "无法创建课程表") }
+    }
   }
 
   fun addMeeting(day: DayOfWeek, period: ClassPeriod, edit: ClassEdit) {

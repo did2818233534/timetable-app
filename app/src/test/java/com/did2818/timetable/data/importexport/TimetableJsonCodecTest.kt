@@ -41,6 +41,13 @@ class TimetableJsonCodecTest {
   }
 
   @Test
+  fun encodeAndDecode_preservesNewTimetableWithoutCourses() {
+    val timetable = codec.decode(validDocument).copy(courses = emptyList(), meetings = emptyList())
+
+    assertEquals(timetable, codec.decode(codec.encode(timetable)))
+  }
+
+  @Test
   fun decode_rejectsCourseWeekOutsideTerm() {
     val invalidDocument = validDocument.replace("\"endWeek\": 18", "\"endWeek\": 19")
 

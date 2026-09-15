@@ -11,6 +11,7 @@ class MainScreenStateFactory(
   fun create(timetable: TimetableSnapshot, requestedWeek: Int): MainScreenUiState {
     val week = requestedWeek.coerceIn(1, timetable.term.totalWeeks)
     return MainScreenUiState(
+      hasTimetable = timetable.periods.isNotEmpty(),
       termName = timetable.term.name,
       selectedWeek = week,
       totalWeeks = timetable.term.totalWeeks,

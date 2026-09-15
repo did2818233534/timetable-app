@@ -20,7 +20,8 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 | `domain/model` | 业务实体、值对象及自身不变量 | Android 类型、界面文案、存储注解 |
 | `domain/usecase` | 可独立测试的课程计算规则 | UI 状态、数据库访问 |
 | `domain/repository` | 领域需要的数据访问契约 | 具体数据库或示例数据 |
-| `data/sample` | 当前可运行的仓库实现和演示数据 | 页面状态、组件渲染 |
+| `data/defaults` | 全新安装且没有持久化文件时的未配置空状态 | 演示课程、页面状态 |
+| `data/sample` | 预览和测试使用的示例数据 | 生产环境默认数据 |
 | `data/importexport` | JSON 文档、领域映射、校验与导入协调 | 页面布局 |
 | `data/local` | 应用私有目录中的课表持久化 | Compose 或小组件代码 |
 | `presentation/timetable` | 页面状态、状态工厂、ViewModel 和路由 | 数据库实现、RemoteViews |
@@ -36,7 +37,11 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 同格显示：候选课程 → `SelectSlotDisplay` → 本周有效课程 / 最近的未来课程 / 最后的历史课程。冲突数据不会丢弃，由 `FindScheduleConflicts` 生成警告，界面负责显示冲突标记。
 
-文件导入：系统文件选择器 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.replace` → 私有文件持久化。
+文件导入：系统文件选择器或 Android `VIEW/SEND` 文件关联 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.replace` → 私有文件持久化。
+
+文件导出：当前 `TimetableSnapshot` → `TimetableExporter` → JSON → Android 系统文件创建器。新建课表则由表单解析器生成 `NewTimetableSpec`，再交给纯领域用例 `CreateEmptyTimetable`。
+
+周切换：Compose `HorizontalPager` 同时维护当前页和相邻页，拖动位移直接驱动页面位置；页面稳定后才把选中周同步回 `MainScreenViewModel`。
 
 桌面组件：`TimetableRepository.timetable.value` → 可见星期/节次过滤 → `BuildRollingSchedule` → 动态 `RemoteViews` 行列 → Android Launcher。
 
@@ -45,7 +50,7 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 ## 扩展位置
 
 - 持久化：当前使用应用私有 JSON 文件；后续切换 Room 时保持 `TimetableRepository` 契约，只修改 `AppContainer` 装配。
-- 文件导入：当前执行“读取 → 解析 → 校验 → 覆盖写入”；后续可在写入前加入预览和合并策略。
+- 文件交换：当前支持系统选择、外部打开、覆盖导入和完整导出；后续可在写入前加入预览和合并策略。
 - 课程编辑：当前使用适合快速修改的表格内对话框；需要复杂批量操作时再拆分独立 Route，并继续复用 `EditTimetable`。
 - 新小组件：复用领域用例和文本/颜色策略，每种尺寸拥有独立 Provider、Updater 与 Renderer。
 - 测试替身：实现内存版 `TimetableRepository` 后通过构造器传入，无需启动数据库或 Android 环境。

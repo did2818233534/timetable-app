@@ -19,9 +19,11 @@ private fun TimetableScreenPreview() {
   TimetableAppTheme {
     MainScreen(
       state = previewState,
-      onPreviousWeek = {},
-      onNextWeek = {},
+      stateForWeek = { previewState.copy(selectedWeek = it) },
+      onSelectWeek = {},
       onImportClick = {},
+      onExportClick = {},
+      onNewClick = {},
       onOpenCell = { _, _, _ -> },
       onCopyItem = {},
       onPasteCell = { _, _ -> },

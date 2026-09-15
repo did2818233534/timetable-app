@@ -6,6 +6,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 data class MainScreenUiState(
+  val hasTimetable: Boolean,
   val termName: String,
   val selectedWeek: Int,
   val totalWeeks: Int,
