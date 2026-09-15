@@ -6,7 +6,7 @@
     "totalWeeks": 18
   },
   "periods": [
-    { "number": 1, "startTime": "08:00", "endTime": "09:35" }
+    { "number": 1, "startTime": "08:00", "endTime": "09:35", "breakAfter": "午休" }
   ],
   "courses": [
     {

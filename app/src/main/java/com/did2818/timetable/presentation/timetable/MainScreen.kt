@@ -8,6 +8,9 @@ import com.did2818.timetable.presentation.timetable.components.DayHeader
 import com.did2818.timetable.presentation.timetable.components.TimetableGrid
 import com.did2818.timetable.presentation.timetable.components.TimetableToolbar
 import com.did2818.timetable.presentation.timetable.components.WeekNavigation
+import com.did2818.timetable.domain.model.ClassPeriod
+import com.did2818.timetable.domain.model.WeekScheduleItem
+import java.time.DayOfWeek
 
 @Composable
 fun MainScreen(
@@ -15,6 +18,10 @@ fun MainScreen(
   onPreviousWeek: () -> Unit,
   onNextWeek: () -> Unit,
   onImportClick: () -> Unit,
+  onEditItem: (WeekScheduleItem) -> Unit,
+  onCopyItem: (WeekScheduleItem) -> Unit,
+  onCreateCell: (DayOfWeek, ClassPeriod) -> Unit,
+  onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
   modifier: Modifier = Modifier,
 ) {
   Column(modifier = modifier.fillMaxSize()) {
@@ -24,7 +31,14 @@ fun MainScreen(
     TimetableGrid(
       periods = state.periods,
       items = state.items,
-      modifier = Modifier.weight(1f),
+      onEditItem = onEditItem,
+      onCopyItem = onCopyItem,
+      onCreateCell = onCreateCell,
+      onPasteCell = onPasteCell,
+      modifier =
+        Modifier
+          .weight(1f)
+          .weekSwipeGesture(onSwipeLeft = onNextWeek, onSwipeRight = onPreviousWeek),
     )
   }
 }

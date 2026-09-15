@@ -1,0 +1,70 @@
+package com.did2818.timetable.domain.usecase
+
+import com.did2818.timetable.data.sample.SampleTimetableRepository
+import com.did2818.timetable.domain.model.WeekParity
+import com.did2818.timetable.domain.model.WeekPattern
+import com.did2818.timetable.domain.usecase.BuildWeekSchedule
+import java.time.DayOfWeek
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Test
+
+class EditTimetableTest {
+  private var id = 0
+  private val editor = EditTimetable { (++id).toString() }
+  private val timetable = SampleTimetableRepository().timetable.value
+
+  @Test
+  fun update_changesCourseNoteAndMeetingRules() {
+    val meeting = timetable.meetings.first()
+    val updated =
+      editor.update(
+        timetable,
+        meeting.id,
+        ClassEdit("新课程名", "B202", "带实验服", WeekPattern(3, 8, WeekParity.ODD_WEEKS)),
+      )
+
+    assertEquals("新课程名", updated.courses.single { it.id == meeting.courseId }.name)
+    assertEquals("带实验服", updated.courses.single { it.id == meeting.courseId }.note)
+    assertEquals("B202", updated.meetings.single { it.id == meeting.id }.classroom)
+  }
+
+  @Test
+  fun paste_placesCopiedClassInTargetCell() {
+    val copied = BuildWeekSchedule()(2, timetable.courses, timetable.meetings).first()
+    val updated = editor.paste(timetable, copied, DayOfWeek.SATURDAY, 5)
+    val pasted = updated.meetings.last()
+
+    assertEquals(DayOfWeek.SATURDAY, pasted.dayOfWeek)
+    assertEquals(timetable.periods.last().startTime, pasted.startTime)
+    assertEquals(copied.course.id, pasted.courseId)
+  }
+
+  @Test
+  fun add_usesSelectedDayPeriodAndNote() {
+    val updated =
+      editor.add(
+        timetable,
+        DayOfWeek.SATURDAY,
+        5,
+        ClassEdit("实验课", "C303", "自带电脑", WeekPattern(2, 6)),
+      )
+    val course = updated.courses.last()
+    val meeting = updated.meetings.last()
+
+    assertEquals("自带电脑", course.note)
+    assertEquals(DayOfWeek.SATURDAY, meeting.dayOfWeek)
+    assertEquals(timetable.periods.last().endTime, meeting.endTime)
+  }
+
+  @Test
+  fun paste_rejectsConflictingClass() {
+    val copied = BuildWeekSchedule()(2, timetable.courses, timetable.meetings).first()
+    val occupied = timetable.meetings.first { it.id != copied.meeting.id }
+    val period = timetable.periods.single { it.startTime == occupied.startTime }
+
+    assertThrows(IllegalArgumentException::class.java) {
+      editor.paste(timetable, copied, occupied.dayOfWeek, period.number)
+    }
+  }
+}

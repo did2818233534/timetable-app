@@ -16,6 +16,8 @@ class TimetableJsonCodecTest {
 
     assertEquals("测试学期", timetable.term.name)
     assertEquals("08:00", timetable.periods.single().startTime.toString())
+    assertEquals("09:35", timetable.periods.single().endTime.toString())
+    assertEquals("午休", timetable.periods.single().breakAfter)
     assertEquals("A101", meeting.classroom)
     assertEquals(WeekParity.ODD_WEEKS, meeting.weekPattern.parity)
     assertEquals(setOf(5), meeting.weekPattern.excludedWeeks)

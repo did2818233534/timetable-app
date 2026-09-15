@@ -81,6 +81,7 @@ private fun courseCellStyle(item: WeekScheduleItem): CourseCellStyle {
 
 private fun WeekScheduleItem.accessibilityText(status: String): String =
   "${course.name}，${meeting.classroom}，" +
-    "${meeting.startTime.timeText()}到${meeting.endTime.timeText()}，$status"
+    "${meeting.startTime.timeText()}到${meeting.endTime.timeText()}，$status" +
+    course.note.takeIf(String::isNotBlank)?.let { "，备注：$it" }.orEmpty()
 
 private data class CourseCellStyle(val background: Color, val text: Color)

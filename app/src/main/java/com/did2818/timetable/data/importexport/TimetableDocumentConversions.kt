@@ -24,7 +24,7 @@ internal fun PeriodDocument.toModel(): ClassPeriod {
   val start = parseValue("上课时间", startTime, LocalTime::parse)
   val end = parseValue("下课时间", endTime, LocalTime::parse)
   require(start < end) { "下课时间必须晚于上课时间" }
-  return ClassPeriod(number, start, end)
+  return ClassPeriod(number, start, end, breakAfter?.trim())
 }
 
 internal fun CourseDocument.toModel(index: Int): Course {

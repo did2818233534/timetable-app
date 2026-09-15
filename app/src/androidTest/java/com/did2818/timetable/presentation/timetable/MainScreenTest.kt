@@ -5,7 +5,15 @@ import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.longClick
 import com.did2818.timetable.data.sample.SampleTimetableRepository
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -13,6 +21,12 @@ import org.junit.Test
 /** UI tests for [MainScreen]. */
 class MainScreenTest {
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  private var previousCount = 0
+  private var nextCount = 0
+  private var editCount = 0
+  private var copyCount = 0
+  private var createCount = 0
+  private var pasteCount = 0
 
   @Before
   fun setup() {
@@ -24,9 +38,13 @@ class MainScreenTest {
     composeTestRule.setContent {
       MainScreen(
         state = state,
-        onPreviousWeek = {},
-        onNextWeek = {},
+        onPreviousWeek = { previousCount++ },
+        onNextWeek = { nextCount++ },
         onImportClick = {},
+        onEditItem = { editCount++ },
+        onCopyItem = { copyCount++ },
+        onCreateCell = { _, _ -> createCount++ },
+        onPasteCell = { _, _ -> pasteCount++ },
       )
     }
   }
@@ -47,5 +65,31 @@ class MainScreenTest {
   @Test
   fun importEntry_isVisibleAndClickable() {
     composeTestRule.onNodeWithText("导入课表").assertHasClickAction()
+  }
+
+  @Test
+  fun horizontalSwipes_requestAdjacentWeeks() {
+    composeTestRule.onRoot().performTouchInput { swipeLeft() }
+    composeTestRule.onRoot().performTouchInput { swipeRight() }
+
+    composeTestRule.runOnIdle {
+      assertEquals(1, nextCount)
+      assertEquals(1, previousCount)
+    }
+  }
+
+  @Test
+  fun cells_supportEditCreateCopyAndPasteGestures() {
+    composeTestRule.onNodeWithTag("slot-MONDAY-1").performClick()
+    composeTestRule.onNodeWithTag("slot-MONDAY-1").performTouchInput { longClick() }
+    composeTestRule.onNodeWithTag("slot-SATURDAY-5").performClick()
+    composeTestRule.onNodeWithTag("slot-SATURDAY-5").performTouchInput { longClick() }
+
+    composeTestRule.runOnIdle {
+      assertEquals(1, editCount)
+      assertEquals(1, copyCount)
+      assertEquals(1, createCount)
+      assertEquals(1, pasteCount)
+    }
   }
 }

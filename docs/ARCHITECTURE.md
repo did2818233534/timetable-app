@@ -32,6 +32,8 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 应用界面：`TimetableRepository.timetable` → `MainScreenViewModel` → `MainScreenStateFactory` → `MainScreenUiState` → Compose 组件。
 
+应用内编辑：表格手势 → 编辑对话框或复制缓冲区 → `EditTimetable` 纯领域用例 → 冲突校验 → `TimetableRepository.replace` → 小组件刷新。
+
 文件导入：系统文件选择器 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.replace` → 私有文件持久化。
 
 桌面组件：`TimetableRepository.timetable.value` → `BuildRollingSchedule` → `RollingWeekRemoteViewsRenderer` → Android Launcher。
@@ -42,6 +44,6 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 - 持久化：当前使用应用私有 JSON 文件；后续切换 Room 时保持 `TimetableRepository` 契约，只修改 `AppContainer` 装配。
 - 文件导入：当前执行“读取 → 解析 → 校验 → 覆盖写入”；后续可在写入前加入预览和合并策略。
-- 课程编辑：在 `presentation/courseeditor` 增加独立 Route、ViewModel、UiState，并通过仓库命令接口保存。
+- 课程编辑：当前使用适合快速修改的表格内对话框；需要复杂批量操作时再拆分独立 Route，并继续复用 `EditTimetable`。
 - 新小组件：复用领域用例和文本/颜色策略，每种尺寸拥有独立 Provider、Updater 与 Renderer。
 - 测试替身：实现内存版 `TimetableRepository` 后通过构造器传入，无需启动数据库或 Android 环境。

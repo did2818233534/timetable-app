@@ -2,6 +2,7 @@ package com.did2818.timetable.presentation.timetable.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.testTag
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.WeekScheduleItem
 import com.did2818.timetable.presentation.common.format.timeText
@@ -29,6 +31,10 @@ import java.time.DayOfWeek
 internal fun PeriodRow(
   period: ClassPeriod,
   items: List<WeekScheduleItem>,
+  onEditItem: (WeekScheduleItem) -> Unit,
+  onCopyItem: (WeekScheduleItem) -> Unit,
+  onCreateCell: (DayOfWeek, ClassPeriod) -> Unit,
+  onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
 ) {
   val gridColor = MaterialTheme.colorScheme.outlineVariant
   Row(modifier = Modifier.fillMaxWidth().height(PeriodRowHeight)) {
@@ -37,13 +43,18 @@ internal fun PeriodRow(
       Modifier.width(TimeColumnWidth).fillMaxHeight().border(GridLineWidth, gridColor),
     )
     DayOfWeek.entries.forEach { day ->
-      val item = items.firstOrNull { it.matches(day, period) }
+      val item = items.filter { it.matches(day, period) }.maxByOrNull { it.isActive }
       Box(
         modifier =
           Modifier
             .weight(1f)
             .fillMaxHeight()
             .border(GridLineWidth, gridColor)
+            .testTag("slot-${day.name}-${period.number}")
+            .combinedClickable(
+              onClick = { if (item == null) onCreateCell(day, period) else onEditItem(item) },
+              onLongClick = { if (item == null) onPasteCell(day, period) else onCopyItem(item) },
+            )
             .padding(2.dp),
       ) {
         if (item != null) CourseCell(item)

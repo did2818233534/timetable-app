@@ -8,7 +8,7 @@ import com.did2818.timetable.domain.model.TimetableSnapshot
 internal fun AcademicTerm.toDocument() = TermDocument(name, startDate.toString(), totalWeeks)
 
 internal fun ClassPeriod.toDocument() =
-  PeriodDocument(number, startTime.toString(), endTime.toString())
+  PeriodDocument(number, startTime.toString(), endTime.toString(), breakAfter)
 
 internal fun Course.toDocument(timetable: TimetableSnapshot) =
   CourseDocument(
@@ -18,7 +18,10 @@ internal fun Course.toDocument(timetable: TimetableSnapshot) =
     note = note,
     meetings =
       timetable.meetings.filter { it.courseId == id }.map { meeting ->
-        val period = timetable.periods.single { it.startTime == meeting.startTime }
+        val period =
+          timetable.periods.single {
+            it.startTime == meeting.startTime && it.endTime == meeting.endTime
+          }
         MeetingDocument(
           day = meeting.dayOfWeek.name,
           period = period.number,

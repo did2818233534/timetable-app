@@ -22,6 +22,7 @@ internal data class PeriodDocument(
   val number: Int,
   val startTime: String,
   val endTime: String,
+  val breakAfter: String? = null,
 )
 
 @Serializable
