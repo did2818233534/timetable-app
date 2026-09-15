@@ -1,0 +1,36 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# Gradle and Kotlin
+.gradle/
+.kotlin/
+**/build/
+
+# Local machine configuration
+local.properties
+.env
+.env.*
+secrets.properties
+
+# Android generated output
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# Signing material
+*.jks
+*.keystore
+keystore.properties
+signing/
+
+# Service configuration
+google-services.json
+
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+*.swp
+*~
