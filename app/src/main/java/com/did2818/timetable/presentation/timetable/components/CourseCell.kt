@@ -28,15 +28,20 @@ import com.did2818.timetable.presentation.common.format.timeText
 import com.did2818.timetable.presentation.timetable.compactWeekLabel
 
 @Composable
-internal fun CourseCell(item: WeekScheduleItem, hasConflict: Boolean) {
+internal fun CourseCell(
+  item: WeekScheduleItem,
+  hasConflict: Boolean,
+  compact: Boolean = false,
+  modifier: Modifier = Modifier,
+) {
   val style = courseCellStyle(item)
   val status = if (item.isActive) "本周上课" else "本周不上课"
   val state = if (hasConflict) "$status，有时间冲突" else status
   Box(
     modifier =
-      Modifier
+      modifier
         .fillMaxSize()
-        .clip(RoundedCornerShape(8.dp))
+        .clip(RoundedCornerShape(if (compact) 5.dp else 8.dp))
         .background(style.background)
         .semantics(mergeDescendants = true) {
           stateDescription = state
@@ -44,14 +49,29 @@ internal fun CourseCell(item: WeekScheduleItem, hasConflict: Boolean) {
         },
   ) {
     Column(
-      verticalArrangement = Arrangement.spacedBy(2.dp),
-      modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp, vertical = 7.dp),
+      verticalArrangement = Arrangement.spacedBy(if (compact) 0.dp else 2.dp),
+      modifier =
+        Modifier
+          .fillMaxSize()
+          .padding(horizontal = 5.dp, vertical = if (compact) 3.dp else 7.dp),
     ) {
-      CellText(item.course.name, style.text, 12, FontWeight.SemiBold, 3)
+      CellText(
+        item.course.name,
+        style.text,
+        if (compact) 10 else 12,
+        FontWeight.SemiBold,
+        if (compact) 1 else 3,
+      )
       item.displayNote().takeIf(String::isNotBlank)?.let { note ->
-        CellText(note, style.text, 9, FontWeight.Normal, 2)
+        CellText(note, style.text, if (compact) 8 else 9, FontWeight.Normal, if (compact) 1 else 2)
       }
-      CellText(item.compactWeekLabel(), style.text, 9, FontWeight.Normal, 2)
+      CellText(
+        item.compactWeekLabel(),
+        style.text,
+        if (compact) 8 else 9,
+        FontWeight.Normal,
+        if (compact) 1 else 2,
+      )
     }
     if (hasConflict) {
       Text(

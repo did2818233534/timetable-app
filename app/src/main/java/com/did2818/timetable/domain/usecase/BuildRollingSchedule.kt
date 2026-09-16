@@ -32,7 +32,7 @@ class BuildRollingSchedule {
                     WeekScheduleItem(course, meeting, meeting.isActiveIn(displayWeek))
                   }
                 }
-            SelectSlotDisplay()(candidates, displayWeek, timetable.term.totalWeeks)?.item
+            SelectSlotDisplays()(candidates, displayWeek, timetable.term.totalWeeks).items
           },
       )
     }

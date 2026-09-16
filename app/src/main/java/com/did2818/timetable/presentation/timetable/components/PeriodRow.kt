@@ -3,10 +3,13 @@ package com.did2818.timetable.presentation.timetable.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,14 +20,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.testTag
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.WeekScheduleItem
-import com.did2818.timetable.domain.usecase.SelectSlotDisplay
+import com.did2818.timetable.domain.usecase.SelectSlotDisplays
 import com.did2818.timetable.presentation.common.format.timeText
 import java.time.DayOfWeek
 
@@ -47,7 +50,7 @@ internal fun PeriodRow(
     )
     visibleDays.forEach { day ->
       val candidates = items.filter { it.matches(day, period) }
-      val display = SelectSlotDisplay()(candidates, selectedWeek, totalWeeks)
+      val display = SelectSlotDisplays()(candidates, selectedWeek, totalWeeks)
       Box(
         modifier =
           Modifier
@@ -58,15 +61,48 @@ internal fun PeriodRow(
             .combinedClickable(
               onClick = { onOpenCell(day, period, candidates) },
               onLongClick = {
-                display?.let { onCopyItem(it.item) } ?: onPasteCell(day, period)
+                display.items.firstOrNull()?.let(onCopyItem) ?: onPasteCell(day, period)
               },
             )
             .padding(2.dp),
       ) {
-        display?.let { CourseCell(it.item, it.hasConflict) }
+        Column(
+          verticalArrangement = Arrangement.spacedBy(2.dp),
+          modifier = Modifier.fillMaxSize(),
+        ) {
+          val split = display.items.size > 1
+          display.items.forEachIndexed { index, item ->
+            CourseCell(
+              item = item,
+              hasConflict = display.hasConflict && index == 0,
+              compact = split,
+              modifier =
+                Modifier
+                  .then(if (split) Modifier.weight(1f) else Modifier.fillMaxSize())
+                  .fillMaxWidth()
+                  .testTag("slot-course-${item.meeting.id}"),
+            )
+          }
+        }
+        val hiddenCount = candidates.size - display.items.size
+        if (hiddenCount > 0) MoreCoursesBadge(hiddenCount, Modifier.align(Alignment.BottomEnd))
       }
     }
   }
+}
+
+@Composable
+private fun MoreCoursesBadge(count: Int, modifier: Modifier = Modifier) {
+  Text(
+    text = "+$count",
+    color = MaterialTheme.colorScheme.onPrimary,
+    fontSize = 8.sp,
+    fontWeight = FontWeight.Bold,
+    modifier =
+      modifier
+        .background(MaterialTheme.colorScheme.primary, CircleShape)
+        .padding(horizontal = 4.dp, vertical = 1.dp),
+  )
 }
 
 @Composable

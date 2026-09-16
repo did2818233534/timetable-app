@@ -45,7 +45,7 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 周切换：Compose `HorizontalPager` 同时维护当前页和相邻页，拖动位移直接驱动页面位置；页面稳定后才把选中周同步回 `MainScreenViewModel`。
 
-桌面组件：`TimetableRepository.timetable.value` → 可见星期/节次过滤 → `BuildRollingSchedule` → 动态 `RemoteViews` 行列 → Android Launcher。
+桌面组件：`TimetableRepository.timetable.value` → 可见星期/节次过滤 → `BuildRollingSchedule` → 动态 `RemoteViews` 行列 → Android Launcher。主表格与组件共用 `SelectSlotDisplays`，同一时段按“本周有效、最近未来、最近过去”的优先级显示最多两门课程。
 
 课程提醒：`ReminderSettings` 与单节覆盖 → `BuildReminderOccurrences` 纯领域用例 → `ReminderScheduler` 维护未来八天的系统闹钟 → `ReminderAlarmReceiver` → 弹窗通知或持续响铃服务。开机、跨日、系统时间/时区变化及精确闹钟授权后统一重新排程；课程表任何修改也会刷新排程。
 

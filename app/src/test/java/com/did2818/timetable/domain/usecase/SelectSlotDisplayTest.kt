@@ -13,6 +13,7 @@ import org.junit.Test
 
 class SelectSlotDisplayTest {
   private val select = SelectSlotDisplay()
+  private val selectMany = SelectSlotDisplays()
 
   @Test
   fun activeCourses_showOneAndMarkConflict() {
@@ -20,6 +21,45 @@ class SelectSlotDisplayTest {
 
     assertTrue(result?.item?.isActive == true)
     assertTrue(result?.hasConflict == true)
+  }
+
+  @Test
+  fun twoActiveCourses_areBothSelectedForSplitDisplay() {
+    val result =
+      selectMany(listOf(item("a", WeekPattern(1, 8)), item("b", WeekPattern(1, 8))), 3, 18)
+
+    assertEquals(listOf("a", "b"), result.items.map { it.course.id })
+    assertTrue(result.items.all(WeekScheduleItem::isActive))
+    assertTrue(result.hasConflict)
+  }
+
+  @Test
+  fun activeCourseAndNextInactiveCourse_areSelectedTogether() {
+    val result =
+      selectMany(
+        listOf(item("active", WeekPattern(1, 8)), item("future", WeekPattern(5, 8))),
+        selectedWeek = 3,
+        totalWeeks = 18,
+      )
+
+    assertEquals(listOf("active", "future"), result.items.map { it.course.id })
+    assertEquals(listOf(true, false), result.items.map { it.isActive })
+  }
+
+  @Test
+  fun moreThanTwoCourses_selectsTwoAndKeepsPriorityOrder() {
+    val result =
+      selectMany(
+        listOf(
+          item("past", WeekPattern(1, 1)),
+          item("far", WeekPattern(8, 9)),
+          item("near", WeekPattern(5, 6)),
+        ),
+        selectedWeek = 3,
+        totalWeeks = 18,
+      )
+
+    assertEquals(listOf("near", "far"), result.items.map { it.course.id })
   }
 
   @Test
