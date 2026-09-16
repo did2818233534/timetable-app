@@ -4,6 +4,7 @@ import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.WeekScheduleItem
 import com.did2818.timetable.domain.model.ReminderSettings
 import com.did2818.timetable.domain.model.SplitDisplaySlot
+import com.did2818.timetable.domain.model.TimetableSummary
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -22,4 +23,6 @@ data class MainScreenUiState(
   val reminderSettings: ReminderSettings,
   val splitDisplaySlots: Set<SplitDisplaySlot>,
   val items: List<WeekScheduleItem>,
+  val timetables: List<TimetableSummary> = emptyList(),
+  val selectedTimetableId: String? = null,
 )

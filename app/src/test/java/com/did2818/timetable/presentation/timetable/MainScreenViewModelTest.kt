@@ -3,6 +3,7 @@ package com.did2818.timetable.presentation.timetable
 import com.did2818.timetable.MainDispatcherRule
 import com.did2818.timetable.data.importexport.JsonTimetableExporter
 import com.did2818.timetable.data.importexport.TimetableJsonCodec
+import com.did2818.timetable.data.export.spreadsheet.XlsxTimetableExporter
 import com.did2818.timetable.data.sample.SampleTimetableRepository
 import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.usecase.NewTimetableSpec
@@ -10,6 +11,7 @@ import com.did2818.timetable.domain.usecase.PeriodTime
 import java.time.LocalDate
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -42,7 +44,7 @@ class MainScreenViewModelTest {
   }
 
   @Test
-  fun createTimetable_replacesCurrentScheduleWithBlankStructure() {
+  fun createTimetable_retainsCurrentScheduleAndSelectsBlankStructure() {
     val viewModel = createViewModel()
 
     viewModel.createTimetable(
@@ -57,6 +59,7 @@ class MainScreenViewModelTest {
     assertEquals("空白课表", viewModel.uiState.value.termName)
     assertEquals(1, viewModel.uiState.value.periods.size)
     assertEquals(0, viewModel.uiState.value.items.size)
+    assertEquals(2, viewModel.uiState.value.timetables.size)
   }
 
   @Test
@@ -67,12 +70,20 @@ class MainScreenViewModelTest {
     assertEquals("2026 秋季学期", codec.decode(viewModel.exportDocument()).term.name)
   }
 
+  @Test
+  fun exportSpreadsheetDocument_returnsXlsxPackage() {
+    val viewModel = createViewModel()
+
+    assertTrue(viewModel.exportSpreadsheetDocument().take(2).toByteArray().contentEquals("PK".toByteArray()))
+  }
+
   private fun createViewModel(codec: TimetableJsonCodec = TimetableJsonCodec()) =
     SampleTimetableRepository().let { repository ->
       MainScreenViewModel(
         repository = repository,
         importer = TimetableImporter { repository.timetable.value },
         exporter = JsonTimetableExporter(codec),
+        spreadsheetExporter = XlsxTimetableExporter(),
         initialWeek = 2,
       )
     }

@@ -19,6 +19,7 @@ fun MainScreen(
   onExportClick: () -> Unit,
   onNewClick: () -> Unit,
   onSettingsClick: () -> Unit,
+  onTimetableSelected: (String) -> Unit = {},
   onOpenCell: (DayOfWeek, ClassPeriod, List<WeekScheduleItem>) -> Unit,
   onCopyItem: (WeekScheduleItem) -> Unit,
   onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
@@ -29,7 +30,16 @@ fun MainScreen(
     return
   }
   Column(modifier = modifier.fillMaxSize()) {
-    TimetableToolbar(state.termName, onImportClick, onExportClick, onNewClick, onSettingsClick)
+    TimetableToolbar(
+      termName = state.termName,
+      onImportClick = onImportClick,
+      onExportClick = onExportClick,
+      onNewClick = onNewClick,
+      onSettingsClick = onSettingsClick,
+      timetables = state.timetables,
+      selectedTimetableId = state.selectedTimetableId,
+      onTimetableSelected = onTimetableSelected,
+    )
     WeekPager(
       state = state,
       stateForWeek = stateForWeek,

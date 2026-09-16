@@ -21,6 +21,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableRepository
+import com.did2818.timetable.domain.repository.TimetableSpreadsheetExporter
+import com.did2818.timetable.presentation.timetable.components.ExportFormatDialog
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -30,13 +32,16 @@ fun MainRoute(
   repository: TimetableRepository,
   importer: TimetableImporter,
   exporter: TimetableExporter,
+  spreadsheetExporter: TimetableSpreadsheetExporter,
   externalDocumentUri: Uri?,
   onExternalDocumentHandled: () -> Unit,
   onImported: () -> Unit,
   onReminderPermissionRequest: () -> Unit,
   modifier: Modifier = Modifier,
   viewModel: MainScreenViewModel =
-    viewModel { MainScreenViewModel(repository, importer, exporter, onImported) },
+    viewModel {
+      MainScreenViewModel(repository, importer, exporter, spreadsheetExporter, onImported)
+    },
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()
   val snackbar = remember { SnackbarHostState() }
@@ -45,12 +50,14 @@ fun MainRoute(
   var conflictWarning by remember { mutableStateOf<String?>(null) }
   var newTimetableStep by remember { mutableStateOf(NewTimetableStep.CLOSED) }
   var settingsPage by remember { mutableStateOf(TimetableSettingsPage.CLOSED) }
+  var showExportOptions by remember { mutableStateOf(false) }
   val fileActions =
     rememberTimetableFileActions(
       externalDocumentUri = externalDocumentUri,
       onExternalDocumentHandled = onExternalDocumentHandled,
       importDocument = viewModel::importDocument,
-      exportDocument = viewModel::exportDocument,
+      exportJsonDocument = viewModel::exportDocument,
+      exportExcelDocument = viewModel::exportSpreadsheetDocument,
       onExported = viewModel::reportExportSuccess,
       onFailure = viewModel::reportFileReadError,
     )
@@ -66,12 +73,12 @@ fun MainRoute(
       stateForWeek = viewModel::stateForWeek,
       onSelectWeek = viewModel::selectWeek,
       onImportClick = fileActions.importFromPicker,
-      onExportClick = { fileActions.exportToPicker(state.termName) },
+      onExportClick = { showExportOptions = true },
       onNewClick = {
-        newTimetableStep =
-          if (state.hasTimetable) NewTimetableStep.CONFIRM_REPLACE else NewTimetableStep.EDIT
+        newTimetableStep = NewTimetableStep.EDIT
       },
       onSettingsClick = { settingsPage = TimetableSettingsPage.LAYOUT },
+      onTimetableSelected = viewModel::selectTimetable,
       onOpenCell = { day, period, items ->
         if (items.isEmpty()) editorTarget = CourseEditorTarget.New(day, period)
         else slotSelection = SlotSelection(day, period, items)
@@ -110,6 +117,19 @@ fun MainRoute(
     onSplitDisplayChange = viewModel::updateSplitDisplay,
     onReminderPermissionRequest = onReminderPermissionRequest,
   )
+  if (showExportOptions) {
+    ExportFormatDialog(
+      onDismiss = { showExportOptions = false },
+      onExportExcel = {
+        showExportOptions = false
+        fileActions.exportExcelToPicker(state.termName)
+      },
+      onExportJson = {
+        showExportOptions = false
+        fileActions.exportJsonToPicker(state.termName)
+      },
+    )
+  }
   conflictWarning?.let { warning ->
     AlertDialog(
       onDismissRequest = { conflictWarning = null },

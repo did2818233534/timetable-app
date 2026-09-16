@@ -67,9 +67,10 @@ class MainScreenTest {
 
   @Test
   fun timetableActions_areVisibleAndClickable() {
-    composeTestRule.onNodeWithText("导入").assertHasClickAction()
-    composeTestRule.onNodeWithText("导出").assertHasClickAction()
-    composeTestRule.onNodeWithText("新建").assertHasClickAction()
+    composeTestRule.onNodeWithTag("timetable-menu-button").performClick()
+    composeTestRule.onNodeWithText("导入课程表").assertHasClickAction()
+    composeTestRule.onNodeWithText("导出课程表").assertHasClickAction()
+    composeTestRule.onNodeWithText("新建课程表").assertHasClickAction()
     composeTestRule.onNodeWithText("设置").assertHasClickAction()
     composeTestRule.onNodeWithText("设置").performClick()
     composeTestRule.runOnIdle { assertEquals(1, settingsCount) }

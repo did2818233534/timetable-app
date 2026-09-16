@@ -10,6 +10,7 @@ import com.did2818.timetable.domain.model.ReminderScope
 import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableRepository
+import com.did2818.timetable.domain.repository.TimetableSpreadsheetExporter
 import com.did2818.timetable.domain.usecase.ClassEdit
 import com.did2818.timetable.domain.usecase.CreateEmptyTimetable
 import com.did2818.timetable.domain.usecase.EditTimetable
@@ -35,6 +36,8 @@ class MainScreenViewModel(
   private val repository: TimetableRepository,
   private val importer: TimetableImporter,
   private val exporter: TimetableExporter = TimetableExporter { error("未配置导出器") },
+  private val spreadsheetExporter: TimetableSpreadsheetExporter =
+    TimetableSpreadsheetExporter { error("未配置 Excel 导出器") },
   private val onImported: () -> Unit = {},
   private val clock: Clock = Clock.systemDefaultZone(),
   initialWeek: Int? = null,
@@ -53,7 +56,16 @@ class MainScreenViewModel(
   private val selectedWeek = MutableStateFlow(startingWeek)
 
   val uiState: StateFlow<MainScreenUiState> =
-    combine(repository.timetable, selectedWeek, stateFactory::create)
+    combine(
+        repository.timetable,
+        selectedWeek,
+        repository.timetables,
+        repository.selectedTimetableId,
+      ) { timetable, week, timetables, selectedId ->
+        stateFactory
+          .create(timetable, week)
+          .copy(timetables = timetables, selectedTimetableId = selectedId)
+      }
       .stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -62,6 +74,21 @@ class MainScreenViewModel(
 
   fun selectWeek(week: Int) {
     if (week in 1..repository.timetable.value.term.totalWeeks) selectedWeek.value = week
+  }
+
+  fun selectTimetable(timetableId: String) {
+    viewModelScope.launch {
+      runCatching {
+          repository.select(timetableId)
+          val selected = repository.timetable.value
+          selectedWeek.value = selected.term.weekNumberOn(LocalDate.now(clock)) ?: 1
+        }
+        .onSuccess {
+          onImported()
+          messageChannel.send("已切换课程表")
+        }
+        .onFailure { error -> messageChannel.send(error.message ?: "无法切换课程表") }
+    }
   }
 
   fun stateForWeek(week: Int): MainScreenUiState = stateFactory.create(repository.timetable.value, week)
@@ -101,11 +128,17 @@ class MainScreenViewModel(
     return exporter.export(timetable)
   }
 
+  fun exportSpreadsheetDocument(): ByteArray {
+    val timetable = repository.timetable.value
+    require(timetable.periods.isNotEmpty()) { "请先新建或导入课程表" }
+    return spreadsheetExporter.export(timetable)
+  }
+
   fun createTimetable(spec: NewTimetableSpec) {
     viewModelScope.launch {
       runCatching {
           val timetable = createEmptyTimetable(spec)
-          repository.replace(timetable)
+          repository.addAndSelect(timetable)
           selectedWeek.value = timetable.term.weekNumberOn(LocalDate.now(clock)) ?: 1
         }
         .onSuccess {

@@ -62,6 +62,8 @@
 
 - 正式交换格式选择结构化 JSON，而不是依赖难以可靠校验的自由文本。
 - 应用内提供导入、导出和新建入口。
+- 右上角三条杠菜单统一承载切换、导入、导出、新建和设置；新建或导入会保留已有课表并切换到新课表。
+- 导出入口可选择 JSON 或 Excel；JSON 用于完整备份和重新导入，Excel 提供教务课表风格的周课表与可筛选课程明细。
 - Android 文件管理器选择“其他方式打开”JSON 时，可以选择“咕嘎课程表”。
 - 导入后的所有布局设置仍可在应用内修改，并在再次导出时完整保留。
 - 原始表格文件只用于离线转换和测试；转换后的私人 JSON 与 APK 放在仓库外，不提交 Git。
@@ -107,6 +109,7 @@
 | 复制粘贴 | 长按复制课程，长按空白格粘贴 | `MainScreenViewModel.kt` |
 | 动态布局设置 | 增删节次、修改时间、星期与行显示、自动隐藏空星期 | `UpdateTimetableLayout.kt` |
 | JSON 导入导出 | 文件选择、外部打开、校验、覆盖导入、完整导出 | `data/importexport` |
+| Excel 导出 | Open XML 工作簿、课表网格、课程明细与系统文件创建器 | `data/export/spreadsheet` |
 | 空白建表 | 新安装为空，可从零配置学期和节次 | `CreateEmptyTimetable.kt` |
 | 七日小组件 | 从当天开始计算七天，动态行列及双课程半格 | `widget`、`BuildRollingSchedule.kt` |
 | 课程提醒 | 全局、每天首节和单课覆盖；弹窗或闹钟 | `reminder`、`BuildReminderOccurrences.kt` |

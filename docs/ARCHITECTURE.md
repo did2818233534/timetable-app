@@ -23,6 +23,7 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 | `data/defaults` | 全新安装且没有持久化文件时的未配置空状态 | 演示课程、页面状态 |
 | `data/sample` | 预览和测试使用的示例数据 | 生产环境默认数据 |
 | `data/importexport` | JSON 文档、领域映射、校验与导入协调 | 页面布局 |
+| `data/export/spreadsheet` | Excel 工作簿映射、Open XML 打包和样式 | Android 文件选择器 |
 | `data/local` | 应用私有目录中的课表持久化 | Compose 或小组件代码 |
 | `presentation/timetable` | 页面状态、状态工厂、ViewModel 和路由 | 数据库实现、RemoteViews |
 | `presentation/timetable/components` | 无业务数据访问的 Compose 小组件 | 仓库和跨页面导航 |
@@ -41,7 +42,9 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 文件导入：系统文件选择器或 Android `VIEW/SEND` 文件关联 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.replace` → 私有文件持久化。
 
-文件导出：当前 `TimetableSnapshot` → `TimetableExporter` → JSON → Android 系统文件创建器。新建课表则由表单解析器生成 `NewTimetableSpec`，再交给纯领域用例 `CreateEmptyTimetable`。
+文件导出：当前 `TimetableSnapshot` 可经 `TimetableExporter` 生成可重新导入的 JSON，也可经 `TimetableSpreadsheetExporter` 生成包含课表网格与课程明细的 XLSX，再交给 Android 系统文件创建器。新建课表则由表单解析器生成 `NewTimetableSpec`，再交给纯领域用例 `CreateEmptyTimetable`。
+
+课表库：`FileTimetableRepository` 为每份课表保存独立 JSON，并用原子写入的索引记录顺序和当前选择。首次升级会把旧版 `active-timetable.json` 自动迁移为第一份课表；该文件继续作为当前课表镜像，兼容已有备份与调试流程。
 
 周切换：Compose `HorizontalPager` 同时维护当前页和相邻页，拖动位移直接驱动页面位置；页面稳定后才把选中周同步回 `MainScreenViewModel`。
 

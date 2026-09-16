@@ -12,7 +12,7 @@ class JsonTimetableImporter(
 ) : TimetableImporter {
   override suspend fun import(document: String): TimetableSnapshot {
     val timetable = withContext(Dispatchers.Default) { codec.decode(document) }
-    repository.replace(timetable)
+    repository.addAndSelect(timetable)
     return timetable
   }
 }

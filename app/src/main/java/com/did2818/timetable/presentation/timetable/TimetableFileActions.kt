@@ -14,7 +14,8 @@ import kotlinx.coroutines.withContext
 
 internal data class TimetableFileActions(
   val importFromPicker: () -> Unit,
-  val exportToPicker: (String) -> Unit,
+  val exportJsonToPicker: (String) -> Unit,
+  val exportExcelToPicker: (String) -> Unit,
 )
 
 @Composable
@@ -22,7 +23,8 @@ internal fun rememberTimetableFileActions(
   externalDocumentUri: Uri?,
   onExternalDocumentHandled: () -> Unit,
   importDocument: (String) -> Unit,
-  exportDocument: () -> String,
+  exportJsonDocument: () -> String,
+  exportExcelDocument: () -> ByteArray,
   onExported: () -> Unit,
   onFailure: (Throwable) -> Unit,
 ): TimetableFileActions {
@@ -47,22 +49,27 @@ internal fun rememberTimetableFileActions(
     rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
       uri?.let(::importUri)
     }
-  val exportPicker =
-    rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(JSON_MIME)) { uri ->
-      uri?.let {
-        scope.launch {
-          runCatching {
-              val document = exportDocument()
-              withContext(Dispatchers.IO) {
-                context.contentResolver.openOutputStream(it, "wt")?.bufferedWriter()?.use { writer ->
-                  writer.write(document)
-                } ?: error("无法写入所选文件")
-              }
-            }
-            .onSuccess { onExported() }
-            .onFailure(onFailure)
+  fun writeDocument(uri: Uri, document: () -> ByteArray) {
+    scope.launch {
+      runCatching {
+          val bytes = document()
+          withContext(Dispatchers.IO) {
+            context.contentResolver.openOutputStream(uri, "wt")?.use { it.write(bytes) }
+              ?: error("无法写入所选文件")
+          }
         }
-      }
+        .onSuccess { onExported() }
+        .onFailure(onFailure)
+    }
+  }
+
+  val jsonExportPicker =
+    rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(JSON_MIME)) { uri ->
+      uri?.let { writeDocument(it) { exportJsonDocument().toByteArray(Charsets.UTF_8) } }
+    }
+  val excelExportPicker =
+    rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(XLSX_MIME)) { uri ->
+      uri?.let { writeDocument(it, exportExcelDocument) }
     }
 
   LaunchedEffect(externalDocumentUri) {
@@ -73,7 +80,8 @@ internal fun rememberTimetableFileActions(
     importFromPicker = {
       importPicker.launch(arrayOf(JSON_MIME, "application/octet-stream", "text/json", "text/plain"))
     },
-    exportToPicker = { name -> exportPicker.launch("${name.safeFileName()}.timetable.json") },
+    exportJsonToPicker = { name -> jsonExportPicker.launch("${name.safeFileName()}.timetable.json") },
+    exportExcelToPicker = { name -> excelExportPicker.launch("${name.safeFileName()}.xlsx") },
   )
 }
 
@@ -81,3 +89,4 @@ private fun String.safeFileName(): String =
   trim().ifBlank { "课程表" }.replace(Regex("""[\\/:*?"<>|]"""), "_")
 
 private const val JSON_MIME = "application/json"
+private const val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

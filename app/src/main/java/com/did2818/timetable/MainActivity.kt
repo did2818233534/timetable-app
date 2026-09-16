@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
             repository = container.timetableRepository,
             importer = container.timetableImporter,
             exporter = container.timetableExporter,
+            spreadsheetExporter = container.timetableSpreadsheetExporter,
             externalDocumentUri = incomingDocumentUri,
             onExternalDocumentHandled = { incomingDocumentUri = null },
             onImported = {

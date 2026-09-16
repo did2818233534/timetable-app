@@ -10,6 +10,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableRepository
+import com.did2818.timetable.domain.repository.TimetableSpreadsheetExporter
 import com.did2818.timetable.presentation.timetable.MainRoute
 
 @Composable
@@ -17,6 +18,7 @@ fun MainNavigation(
   repository: TimetableRepository,
   importer: TimetableImporter,
   exporter: TimetableExporter,
+  spreadsheetExporter: TimetableSpreadsheetExporter,
   externalDocumentUri: Uri?,
   onExternalDocumentHandled: () -> Unit,
   onImported: () -> Unit,
@@ -34,6 +36,7 @@ fun MainNavigation(
             repository = repository,
             importer = importer,
             exporter = exporter,
+            spreadsheetExporter = spreadsheetExporter,
             externalDocumentUri = externalDocumentUri,
             onExternalDocumentHandled = onExternalDocumentHandled,
             onImported = onImported,
