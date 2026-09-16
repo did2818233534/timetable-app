@@ -12,10 +12,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
@@ -74,17 +75,15 @@ internal fun CourseCell(
       )
     }
     if (hasConflict) {
-      Text(
-        text = "!",
-        color = MaterialTheme.colorScheme.onError,
-        fontSize = 9.sp,
-        fontWeight = FontWeight.Bold,
+      Box(
         modifier =
           Modifier
-            .align(Alignment.TopEnd)
-            .size(15.dp)
+            .align(Alignment.BottomStart)
+            .padding(start = 4.dp, bottom = 4.dp)
+            .size(6.dp)
             .background(MaterialTheme.colorScheme.error, CircleShape)
-            .padding(horizontal = 5.dp),
+            .semantics { contentDescription = "时间冲突" }
+            .testTag("conflict-dot"),
       )
     }
   }

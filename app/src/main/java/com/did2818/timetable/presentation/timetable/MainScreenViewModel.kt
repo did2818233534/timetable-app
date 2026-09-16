@@ -172,7 +172,7 @@ class MainScreenViewModel(
           onImported()
           onSuccess()
           if (reportConflicts && conflictCount > 0) {
-            conflictChannel.send("$message，但当前课表有 $conflictCount 处时间冲突。冲突格会显示 !。")
+            conflictChannel.send("$message，但当前课表有 $conflictCount 处时间冲突。冲突课程左下角会显示红点。")
           } else messageChannel.send(message)
         }
         .onFailure { error -> messageChannel.send(error.message ?: "课表保存失败") }
