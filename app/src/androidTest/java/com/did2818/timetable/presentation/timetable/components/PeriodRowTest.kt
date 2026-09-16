@@ -78,6 +78,40 @@ class PeriodRowTest {
     composeTestRule.onNodeWithText("第二门课程").assertDoesNotExist()
   }
 
+  @Test
+  fun moreCoursesBadge_isASmallCircle() {
+    composeTestRule.setContent {
+      MaterialTheme {
+        PeriodRow(
+          period = period,
+          items =
+            listOf(
+              item("first", "第一门课程"),
+              item("second", "第二门课程"),
+              item("third", "第三门课程"),
+            ),
+          visibleDays = listOf(DayOfWeek.MONDAY),
+          selectedWeek = 3,
+          totalWeeks = 18,
+          splitDisplaySlots = setOf(SplitDisplaySlot(DayOfWeek.MONDAY, 1)),
+          onOpenCell = { _, _, _ -> },
+          onCopyItem = {},
+          onPasteCell = { _, _ -> },
+        )
+      }
+    }
+
+    composeTestRule.onNodeWithText("+1").assertExists()
+    val badge =
+      composeTestRule
+        .onNodeWithTag("more-courses-badge", useUnmergedTree = true)
+        .fetchSemanticsNode()
+        .boundsInRoot
+    val course = courseBounds("first-meeting")
+    assertEquals(badge.width, badge.height, 1f)
+    assertTrue(badge.width < course.height * 0.5f)
+  }
+
   private fun courseBounds(meetingId: String) =
     composeTestRule
       .onNodeWithTag("slot-course-$meetingId", useUnmergedTree = true)

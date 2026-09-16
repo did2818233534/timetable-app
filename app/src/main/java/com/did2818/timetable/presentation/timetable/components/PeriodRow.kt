@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -97,16 +98,23 @@ internal fun PeriodRow(
 
 @Composable
 private fun MoreCoursesBadge(count: Int, modifier: Modifier = Modifier) {
-  Text(
-    text = "+$count",
-    color = MaterialTheme.colorScheme.onPrimary,
-    fontSize = 8.sp,
-    fontWeight = FontWeight.Bold,
+  Box(
+    contentAlignment = Alignment.Center,
     modifier =
       modifier
+        .size(14.dp)
         .background(MaterialTheme.colorScheme.primary, CircleShape)
-        .padding(horizontal = 4.dp, vertical = 1.dp),
-  )
+        .testTag("more-courses-badge"),
+  ) {
+    Text(
+      text = "+$count",
+      color = MaterialTheme.colorScheme.onPrimary,
+      fontSize = if (count < 10) 7.sp else 6.sp,
+      lineHeight = 7.sp,
+      fontWeight = FontWeight.Bold,
+      textAlign = TextAlign.Center,
+    )
+  }
 }
 
 @Composable
