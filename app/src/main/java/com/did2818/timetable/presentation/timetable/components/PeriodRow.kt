@@ -79,7 +79,7 @@ internal fun PeriodRow(
           display.items.forEachIndexed { index, item ->
             CourseCell(
               item = item,
-              hasConflict = display.hasConflict && index == 0,
+              hasConflict = display.hasConflict && index == display.items.lastIndex,
               compact = split,
               modifier =
                 Modifier

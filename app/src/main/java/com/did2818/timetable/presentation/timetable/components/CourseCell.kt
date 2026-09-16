@@ -81,7 +81,7 @@ internal fun CourseCell(
             .align(Alignment.BottomStart)
             .padding(start = 4.dp, bottom = 4.dp)
             .size(6.dp)
-            .background(MaterialTheme.colorScheme.error, CircleShape)
+            .background(ConflictDotColor, CircleShape)
             .semantics { contentDescription = "时间冲突" }
             .testTag("conflict-dot"),
       )
@@ -127,3 +127,5 @@ private fun WeekScheduleItem.accessibilityText(status: String): String =
 private fun WeekScheduleItem.displayNote(): String = meeting.displayNote.ifBlank { course.note }
 
 private data class CourseCellStyle(val background: Color, val text: Color)
+
+private val ConflictDotColor = Color(0xFFE53935)

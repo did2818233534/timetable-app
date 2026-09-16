@@ -113,7 +113,7 @@ class PeriodRowTest {
   }
 
   @Test
-  fun conflictIndicator_isASmallDotAtCourseBottomStart() {
+  fun conflictIndicator_isASmallDotAtBottomCourseBottomStart() {
     composeTestRule.setContent {
       MaterialTheme {
         PeriodRow(
@@ -122,7 +122,7 @@ class PeriodRowTest {
           visibleDays = listOf(DayOfWeek.MONDAY),
           selectedWeek = 3,
           totalWeeks = 18,
-          splitDisplaySlots = emptySet(),
+          splitDisplaySlots = setOf(SplitDisplaySlot(DayOfWeek.MONDAY, 1)),
           onOpenCell = { _, _, _ -> },
           onCopyItem = {},
           onPasteCell = { _, _ -> },
@@ -130,16 +130,18 @@ class PeriodRowTest {
       }
     }
 
-    val course = courseBounds("first-meeting")
+    val topCourse = courseBounds("first-meeting")
+    val bottomCourse = courseBounds("second-meeting")
     val dot =
       composeTestRule
         .onNodeWithTag("conflict-dot", useUnmergedTree = true)
         .fetchSemanticsNode()
         .boundsInRoot
     assertEquals(dot.width, dot.height, 1f)
-    assertTrue(dot.width < course.height * 0.15f)
-    assertTrue(dot.left < course.center.x)
-    assertTrue(dot.top > course.center.y)
+    assertTrue(dot.width < bottomCourse.height * 0.15f)
+    assertTrue(dot.left < bottomCourse.center.x)
+    assertTrue(dot.top > bottomCourse.center.y)
+    assertTrue(dot.top >= topCourse.bottom)
   }
 
   private fun courseBounds(meetingId: String) =
