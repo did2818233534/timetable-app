@@ -11,8 +11,8 @@ android {
         applicationId = "com.did2818.timetable"
         minSdk = 26
         targetSdk = 36
-        versionCode = 12
-        versionName = "1.11"
+        versionCode = 1
+        versionName = "0.0.1"
     }
 
     buildTypes {

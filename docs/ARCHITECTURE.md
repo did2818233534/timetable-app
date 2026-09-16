@@ -40,7 +40,7 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 
 同格显示：候选课程 → `SelectSlotDisplays` → 本周有效课程 / 最近的未来课程 / 最近的历史课程，按优先级取最多两门并渲染为上下半格。冲突数据不会丢弃，由 `FindScheduleConflicts` 生成警告，界面负责显示冲突标记。
 
-文件导入：系统文件选择器或 Android `VIEW/SEND` 文件关联 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.replace` → 私有文件持久化。
+文件导入：系统文件选择器或 Android `VIEW/SEND` 文件关联 → 限量 UTF-8 读取 → `TimetableImporter` → JSON 映射与校验 → `TimetableRepository.addAndSelect` → 课表库持久化。
 
 文件导出：当前 `TimetableSnapshot` 可经 `TimetableExporter` 生成可重新导入的 JSON，也可经 `TimetableSpreadsheetExporter` 生成包含课表网格与课程明细的 XLSX，再交给 Android 系统文件创建器。新建课表则由表单解析器生成 `NewTimetableSpec`，再交给纯领域用例 `CreateEmptyTimetable`。
 
@@ -57,7 +57,7 @@ Android 入口 ──> di（组合根） ──> data（仓库实现）
 ## 扩展位置
 
 - 持久化：当前使用应用私有 JSON 文件；后续切换 Room 时保持 `TimetableRepository` 契约，只修改 `AppContainer` 装配。
-- 文件交换：当前支持系统选择、外部打开、覆盖导入和完整导出；后续可在写入前加入预览和合并策略。
+- 文件交换：当前支持系统选择、外部打开、新增导入和完整导出；后续可在写入前加入预览和合并策略。
 - 课程编辑：当前使用适合快速修改的表格内对话框；需要复杂批量操作时再拆分独立 Route，并继续复用 `EditTimetable`。
 - 新小组件：复用领域用例和文本/颜色策略，每种尺寸拥有独立 Provider、Updater 与 Renderer。
 - 测试替身：实现内存版 `TimetableRepository` 后通过构造器传入，无需启动数据库或 Android 环境。
