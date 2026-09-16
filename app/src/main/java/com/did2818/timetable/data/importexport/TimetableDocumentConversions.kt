@@ -11,6 +11,7 @@ import com.did2818.timetable.domain.model.ReminderDelivery
 import com.did2818.timetable.domain.model.ReminderOverride
 import com.did2818.timetable.domain.model.ReminderScope
 import com.did2818.timetable.domain.model.ReminderSettings
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -62,6 +63,12 @@ internal fun ReminderOverrideDocument.toModel(): ReminderOverride =
     minutesBefore = minutesBefore,
     delivery = parseValue("课程提醒方式", delivery.uppercase(), ReminderDelivery::valueOf),
   )
+
+internal fun SplitDisplaySlotDocument.toModel(periods: List<ClassPeriod>): SplitDisplaySlot {
+  val dayOfWeek = parseValue("分栏显示星期", day.uppercase(), DayOfWeek::valueOf)
+  require(periods.any { it.number == period }) { "分栏显示引用了不存在的第 $period 节" }
+  return SplitDisplaySlot(dayOfWeek, period)
+}
 
 internal fun MeetingDocument.toModel(
   courseId: String,

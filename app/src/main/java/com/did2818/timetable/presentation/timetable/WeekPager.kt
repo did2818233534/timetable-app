@@ -66,6 +66,7 @@ internal fun WeekPager(
           items = pageState.items,
           selectedWeek = pageState.selectedWeek,
           totalWeeks = pageState.totalWeeks,
+          splitDisplaySlots = pageState.splitDisplaySlots,
           onOpenCell = onOpenCell,
           onCopyItem = onCopyItem,
           onPasteCell = onPasteCell,

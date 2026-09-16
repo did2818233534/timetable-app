@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.did2818.timetable.domain.model.ClassPeriod
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import com.did2818.timetable.domain.model.WeekScheduleItem
 import com.did2818.timetable.domain.usecase.SelectSlotDisplays
 import com.did2818.timetable.presentation.common.format.timeText
@@ -38,6 +39,7 @@ internal fun PeriodRow(
   visibleDays: List<DayOfWeek>,
   selectedWeek: Int,
   totalWeeks: Int,
+  splitDisplaySlots: Set<SplitDisplaySlot>,
   onOpenCell: (DayOfWeek, ClassPeriod, List<WeekScheduleItem>) -> Unit,
   onCopyItem: (WeekScheduleItem) -> Unit,
   onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
@@ -50,7 +52,9 @@ internal fun PeriodRow(
     )
     visibleDays.forEach { day ->
       val candidates = items.filter { it.matches(day, period) }
-      val display = SelectSlotDisplays()(candidates, selectedWeek, totalWeeks)
+      val displayLimit =
+        if (SplitDisplaySlot(day, period.number) in splitDisplaySlots) SPLIT_DISPLAY_LIMIT else 1
+      val display = SelectSlotDisplays()(candidates, selectedWeek, totalWeeks, displayLimit)
       Box(
         modifier =
           Modifier
@@ -139,3 +143,5 @@ internal fun BreakRow(label: String) {
 
 private fun WeekScheduleItem.matches(day: DayOfWeek, period: ClassPeriod): Boolean =
   meeting.dayOfWeek == day && meeting.startTime == period.startTime
+
+private const val SPLIT_DISPLAY_LIMIT = 2

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.did2818.timetable.domain.model.ClassPeriod
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import com.did2818.timetable.domain.model.WeekScheduleItem
 import java.time.DayOfWeek
 
@@ -19,6 +20,7 @@ fun TimetableGrid(
   items: List<WeekScheduleItem>,
   selectedWeek: Int,
   totalWeeks: Int,
+  splitDisplaySlots: Set<SplitDisplaySlot>,
   onOpenCell: (DayOfWeek, ClassPeriod, List<WeekScheduleItem>) -> Unit,
   onCopyItem: (WeekScheduleItem) -> Unit,
   onPasteCell: (DayOfWeek, ClassPeriod) -> Unit,
@@ -32,6 +34,7 @@ fun TimetableGrid(
         visibleDays,
         selectedWeek,
         totalWeeks,
+        splitDisplaySlots,
         onOpenCell,
         onCopyItem,
         onPasteCell,

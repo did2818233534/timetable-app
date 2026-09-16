@@ -18,6 +18,7 @@ import com.did2818.timetable.domain.usecase.NewTimetableSpec
 import com.did2818.timetable.domain.usecase.TimetableLayoutEdit
 import com.did2818.timetable.domain.usecase.UpdateTimetableLayout
 import com.did2818.timetable.domain.usecase.UpdateReminderSettings
+import com.did2818.timetable.domain.usecase.UpdateSplitDisplaySlot
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -42,6 +43,7 @@ class MainScreenViewModel(
   private val createEmptyTimetable: CreateEmptyTimetable = CreateEmptyTimetable(),
   private val updateTimetableLayout: UpdateTimetableLayout = UpdateTimetableLayout(),
   private val updateReminderSettings: UpdateReminderSettings = UpdateReminderSettings(),
+  private val updateSplitDisplaySlot: UpdateSplitDisplaySlot = UpdateSplitDisplaySlot(),
 ) : ViewModel() {
   private val initialTimetable = repository.timetable.value
   private val startingWeek =
@@ -134,6 +136,12 @@ class MainScreenViewModel(
     save("提醒设置已保存", onSuccess) { updateReminderSettings(it, settings) }
   }
 
+  fun updateSplitDisplay(day: DayOfWeek, periodNumber: Int, enabled: Boolean) {
+    save("格子显示方式已保存", reportConflicts = false) {
+      updateSplitDisplaySlot(it, day, periodNumber, enabled)
+    }
+  }
+
   fun copyMeeting(item: WeekScheduleItem) {
     copiedItem = item
     messageChannel.trySend("已复制“${item.course.name}”，长按空白格可粘贴")
@@ -151,6 +159,7 @@ class MainScreenViewModel(
   private fun save(
     message: String,
     onSuccess: () -> Unit = {},
+    reportConflicts: Boolean = true,
     change: (TimetableSnapshot) -> TimetableSnapshot,
   ) {
     viewModelScope.launch {
@@ -162,7 +171,7 @@ class MainScreenViewModel(
         .onSuccess { conflictCount ->
           onImported()
           onSuccess()
-          if (conflictCount > 0) {
+          if (reportConflicts && conflictCount > 0) {
             conflictChannel.send("$message，但当前课表有 $conflictCount 处时间冲突。冲突格会显示 !。")
           } else messageChannel.send(message)
         }

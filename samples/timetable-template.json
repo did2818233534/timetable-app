@@ -11,6 +11,7 @@
   ],
   "visibleDays": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
   "hideEmptyDays": false,
+  "splitDisplaySlots": [],
   "reminderSettings": {
     "scope": "DISABLED",
     "minutesBefore": 10,

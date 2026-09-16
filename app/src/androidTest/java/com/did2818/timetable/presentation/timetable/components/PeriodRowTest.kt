@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performClick
 import com.did2818.timetable.domain.model.ClassMeeting
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.Course
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import com.did2818.timetable.domain.model.WeekPattern
 import com.did2818.timetable.domain.model.WeekScheduleItem
 import java.time.DayOfWeek
@@ -34,6 +35,7 @@ class PeriodRowTest {
           visibleDays = listOf(DayOfWeek.MONDAY),
           selectedWeek = 3,
           totalWeeks = 18,
+          splitDisplaySlots = setOf(SplitDisplaySlot(DayOfWeek.MONDAY, 1)),
           onOpenCell = { _, _, items -> openedCount = items.size },
           onCopyItem = {},
           onPasteCell = { _, _ -> },
@@ -52,6 +54,28 @@ class PeriodRowTest {
 
     composeTestRule.onNodeWithTag("slot-MONDAY-1").performClick()
     composeTestRule.runOnIdle { assertEquals(2, openedCount) }
+  }
+
+  @Test
+  fun slotWithoutSplitConfiguration_displaysOnlyHighestPriorityCourse() {
+    composeTestRule.setContent {
+      MaterialTheme {
+        PeriodRow(
+          period = period,
+          items = listOf(item("first", "第一门课程"), item("second", "第二门课程")),
+          visibleDays = listOf(DayOfWeek.MONDAY),
+          selectedWeek = 3,
+          totalWeeks = 18,
+          splitDisplaySlots = emptySet(),
+          onOpenCell = { _, _, _ -> },
+          onCopyItem = {},
+          onPasteCell = { _, _ -> },
+        )
+      }
+    }
+
+    composeTestRule.onNodeWithText("第一门课程").assertExists()
+    composeTestRule.onNodeWithText("第二门课程").assertDoesNotExist()
   }
 
   private fun courseBounds(meetingId: String) =

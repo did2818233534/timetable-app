@@ -5,6 +5,7 @@ import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.WeekParity
 import com.did2818.timetable.domain.model.WeekPattern
 import com.did2818.timetable.domain.model.WeekScheduleItem
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import com.did2818.timetable.domain.usecase.ClassEdit
 import com.did2818.timetable.presentation.timetable.components.CourseEditorDialog
 import com.did2818.timetable.presentation.timetable.components.SlotCoursesDialog
@@ -20,6 +21,7 @@ internal fun CourseEditingFlow(
   onAdd: (DayOfWeek, ClassPeriod, ClassEdit) -> Unit,
   onUpdate: (WeekScheduleItem, ClassEdit) -> Unit,
   onDelete: (WeekScheduleItem) -> Unit,
+  onSplitDisplayChange: (DayOfWeek, Int, Boolean) -> Unit,
   onReminderPermissionRequest: () -> Unit,
 ) {
   editorTarget?.let { target ->
@@ -46,6 +48,11 @@ internal fun CourseEditingFlow(
     SlotCoursesDialog(
       title = "${slot.day.displayName()} 第 ${slot.period.number} 节的课程",
       items = slot.items,
+      splitDisplay =
+        SplitDisplaySlot(slot.day, slot.period.number) in state.splitDisplaySlots,
+      onSplitDisplayChange = { enabled ->
+        onSplitDisplayChange(slot.day, slot.period.number, enabled)
+      },
       onSelect = { item ->
         onSlotSelectionChange(null)
         onEditorTargetChange(CourseEditorTarget.Existing(item, slot.period))

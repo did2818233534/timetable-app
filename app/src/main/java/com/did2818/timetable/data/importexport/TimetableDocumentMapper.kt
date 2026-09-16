@@ -4,6 +4,7 @@ import com.did2818.timetable.domain.model.AcademicTerm
 import com.did2818.timetable.domain.model.ClassMeeting
 import com.did2818.timetable.domain.model.ClassPeriod
 import com.did2818.timetable.domain.model.Course
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import com.did2818.timetable.domain.model.TimetableSnapshot
 import com.did2818.timetable.domain.model.WeekParity
 import com.did2818.timetable.domain.model.WeekPattern
@@ -20,13 +21,14 @@ internal class TimetableDocumentMapper {
     val courses = document.courses.mapIndexed { index, course -> course.toModel(index) }
     val meetings = buildMeetings(document.courses, courses, periods, term.totalWeeks)
     return TimetableSnapshot(
-      term,
-      periods,
-      courses,
-      meetings,
-      document.visibleDays.toVisibleDays(),
-      document.hideEmptyDays,
-      document.reminderSettings.toModel(),
+      term = term,
+      periods = periods,
+      courses = courses,
+      meetings = meetings,
+      visibleDays = document.visibleDays.toVisibleDays(),
+      hideEmptyDays = document.hideEmptyDays,
+      reminderSettings = document.reminderSettings.toModel(),
+      splitDisplaySlots = document.splitDisplaySlots.mapTo(linkedSetOf()) { it.toModel(periods) },
     )
   }
 
@@ -38,6 +40,10 @@ internal class TimetableDocumentMapper {
       visibleDays = timetable.visibleDays.sortedBy { it.value }.map { it.name },
       hideEmptyDays = timetable.hideEmptyDays,
       reminderSettings = timetable.reminderSettings.toDocument(),
+      splitDisplaySlots =
+        timetable.splitDisplaySlots
+          .sortedWith(compareBy({ it.dayOfWeek.value }, { it.periodNumber }))
+          .map(SplitDisplaySlot::toDocument),
       courses = timetable.courses.map { it.toDocument(timetable) },
     )
 

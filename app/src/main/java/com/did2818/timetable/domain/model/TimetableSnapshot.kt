@@ -11,6 +11,7 @@ data class TimetableSnapshot(
   val visibleDays: Set<DayOfWeek> = DayOfWeek.entries.toSet(),
   val hideEmptyDays: Boolean = false,
   val reminderSettings: ReminderSettings = ReminderSettings(),
+  val splitDisplaySlots: Set<SplitDisplaySlot> = emptySet(),
 ) {
   init {
     require(visibleDays.isNotEmpty()) { "At least one weekday must be visible" }
@@ -26,6 +27,10 @@ data class TimetableSnapshot(
     val courseIds = courses.mapTo(hashSetOf(), Course::id)
     require(meetings.all { it.courseId in courseIds }) {
       "Every meeting must reference an existing course"
+    }
+    val periodNumbers = periods.mapTo(hashSetOf(), ClassPeriod::number)
+    require(splitDisplaySlots.all { it.periodNumber in periodNumbers }) {
+      "Every split display slot must reference an existing period"
     }
   }
 }

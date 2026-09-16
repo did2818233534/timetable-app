@@ -107,6 +107,7 @@ fun MainRoute(
     onAdd = viewModel::addMeeting,
     onUpdate = viewModel::updateMeeting,
     onDelete = viewModel::deleteMeeting,
+    onSplitDisplayChange = viewModel::updateSplitDisplay,
     onReminderPermissionRequest = onReminderPermissionRequest,
   )
   conflictWarning?.let { warning ->

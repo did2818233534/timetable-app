@@ -17,7 +17,15 @@ internal data class TimetableDocument(
   val hideEmptyDays: Boolean = false,
   @EncodeDefault
   val reminderSettings: ReminderSettingsDocument = ReminderSettingsDocument(),
+  @EncodeDefault
+  val splitDisplaySlots: List<SplitDisplaySlotDocument> = emptyList(),
   val courses: List<CourseDocument>,
+)
+
+@Serializable
+internal data class SplitDisplaySlotDocument(
+  val day: String,
+  val period: Int,
 )
 
 @Serializable

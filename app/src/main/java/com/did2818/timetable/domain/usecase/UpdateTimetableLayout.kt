@@ -30,11 +30,17 @@ class UpdateTimetableLayout {
       require(newIndex >= 0) { "第 ${oldPeriod.number} 节仍有课程，不能删除" }
       meeting.copy(startTime = periods[newIndex].startTime, endTime = periods[newIndex].endTime)
     }
+    val splitDisplaySlots =
+      timetable.splitDisplaySlots.mapNotNullTo(linkedSetOf()) { slot ->
+        val newIndex = edit.periods.indexOfFirst { it.originalNumber == slot.periodNumber }
+        slot.takeIf { newIndex >= 0 }?.copy(periodNumber = newIndex + 1)
+      }
     return timetable.copy(
       periods = periods,
       meetings = meetings,
       visibleDays = edit.visibleDays,
       hideEmptyDays = edit.hideEmptyDays,
+      splitDisplaySlots = splitDisplaySlots,
     )
   }
 }

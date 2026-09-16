@@ -25,6 +25,7 @@ class MainScreenStateFactory(
       visibleDays = resolveVisibleDays(timetable),
       hideEmptyDays = timetable.hideEmptyDays,
       reminderSettings = timetable.reminderSettings,
+      splitDisplaySlots = timetable.splitDisplaySlots,
       items = buildWeekSchedule(week, timetable.courses, timetable.meetings),
     )
   }

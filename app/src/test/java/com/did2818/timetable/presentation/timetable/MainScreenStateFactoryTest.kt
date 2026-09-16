@@ -3,6 +3,7 @@ package com.did2818.timetable.presentation.timetable
 import com.did2818.timetable.data.sample.SampleTimetableRepository
 import com.did2818.timetable.data.defaults.emptyTimetable
 import java.time.DayOfWeek
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -19,6 +20,7 @@ class MainScreenStateFactoryTest {
       source.copy(
         periods = source.periods.map { it.copy(visible = it.number <= 4) },
         visibleDays = DayOfWeek.entries.filterNot { it == DayOfWeek.SUNDAY }.toSet(),
+        splitDisplaySlots = setOf(SplitDisplaySlot(DayOfWeek.TUESDAY, 2)),
       )
 
     val state = MainScreenStateFactory().create(configured, requestedWeek = 2)
@@ -27,6 +29,7 @@ class MainScreenStateFactoryTest {
     assertEquals(6, state.visibleDays.size)
     assertEquals(true, DayOfWeek.SATURDAY in state.visibleDays)
     assertEquals(false, DayOfWeek.SUNDAY in state.visibleDays)
+    assertEquals(setOf(SplitDisplaySlot(DayOfWeek.TUESDAY, 2)), state.splitDisplaySlots)
   }
 
   @Test

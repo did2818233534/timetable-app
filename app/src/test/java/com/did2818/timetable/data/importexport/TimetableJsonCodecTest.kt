@@ -5,6 +5,8 @@ import com.did2818.timetable.domain.model.ReminderDelivery
 import com.did2818.timetable.domain.model.ReminderOverride
 import com.did2818.timetable.domain.model.ReminderScope
 import com.did2818.timetable.domain.model.ReminderSettings
+import com.did2818.timetable.domain.model.SplitDisplaySlot
+import java.time.DayOfWeek
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -77,6 +79,29 @@ class TimetableJsonCodecTest {
     assertEquals(timetable, codec.decode(document))
     assertEquals(true, document.contains("\"scope\": \"FIRST_CLASS_OF_DAY\""))
     assertEquals(true, document.contains("\"reminder\""))
+  }
+
+  @Test
+  fun encodeAndDecode_preservesPerSlotSplitDisplayConfiguration() {
+    val timetable =
+      codec.decode(validDocument).copy(
+        splitDisplaySlots = setOf(SplitDisplaySlot(DayOfWeek.MONDAY, 1)),
+      )
+
+    val document = codec.encode(timetable)
+
+    assertEquals(timetable, codec.decode(document))
+    assertEquals(true, document.contains("\"splitDisplaySlots\""))
+    assertEquals(true, document.contains("\"day\": \"MONDAY\""))
+    assertEquals(true, document.contains("\"period\": 1"))
+  }
+
+  @Test
+  fun decode_withoutSplitDisplayConfiguration_defaultsToSingleCourse() {
+    val timetable = codec.decode(validDocument)
+
+    assertEquals(emptySet<SplitDisplaySlot>(), timetable.splitDisplaySlots)
+    assertEquals(true, codec.encode(timetable).contains("\"splitDisplaySlots\": []"))
   }
 
   @Test

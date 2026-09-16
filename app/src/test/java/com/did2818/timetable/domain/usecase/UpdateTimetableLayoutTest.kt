@@ -3,6 +3,7 @@ package com.did2818.timetable.domain.usecase
 import com.did2818.timetable.data.sample.SampleTimetableRepository
 import java.time.DayOfWeek
 import java.time.LocalTime
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -42,5 +43,23 @@ class UpdateTimetableLayoutTest {
     }
 
     assertEquals("第 1 节仍有课程，不能删除", error.message)
+  }
+
+  @Test
+  fun reorderingPeriods_movesSplitDisplayConfigurationWithItsPeriod() {
+    val configured =
+      source.copy(splitDisplaySlots = setOf(SplitDisplaySlot(DayOfWeek.SATURDAY, 5)))
+    val edits =
+      listOf(source.periods.last(), *source.periods.dropLast(1).toTypedArray()).map { period ->
+        TimetablePeriodEdit(period.number, period.startTime, period.endTime, period.visible)
+      }
+
+    val updated =
+      UpdateTimetableLayout()(
+        configured,
+        TimetableLayoutEdit(edits, source.visibleDays, source.hideEmptyDays),
+      )
+
+    assertEquals(setOf(SplitDisplaySlot(DayOfWeek.SATURDAY, 1)), updated.splitDisplaySlots)
   }
 }

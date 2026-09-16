@@ -6,6 +6,7 @@ import com.did2818.timetable.domain.model.Course
 import com.did2818.timetable.domain.model.TimetableSnapshot
 import com.did2818.timetable.domain.model.ReminderOverride
 import com.did2818.timetable.domain.model.ReminderSettings
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 
 internal fun AcademicTerm.toDocument() = TermDocument(name, startDate.toString(), totalWeeks)
 
@@ -17,6 +18,8 @@ internal fun ReminderSettings.toDocument() =
 
 internal fun ReminderOverride.toDocument() =
   ReminderOverrideDocument(enabled, minutesBefore, delivery.name)
+
+internal fun SplitDisplaySlot.toDocument() = SplitDisplaySlotDocument(dayOfWeek.name, periodNumber)
 
 internal fun Course.toDocument(timetable: TimetableSnapshot) =
   CourseDocument(

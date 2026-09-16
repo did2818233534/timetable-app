@@ -3,6 +3,7 @@ package com.did2818.timetable.domain.usecase
 import com.did2818.timetable.domain.model.DaySchedule
 import com.did2818.timetable.domain.model.TimetableSnapshot
 import com.did2818.timetable.domain.model.WeekScheduleItem
+import com.did2818.timetable.domain.model.SplitDisplaySlot
 import java.time.LocalDate
 
 /** Builds consecutive calendar days and evaluates each date against its semester week. */
@@ -32,7 +33,11 @@ class BuildRollingSchedule {
                     WeekScheduleItem(course, meeting, meeting.isActiveIn(displayWeek))
                   }
                 }
-            SelectSlotDisplays()(candidates, displayWeek, timetable.term.totalWeeks).items
+            val displayLimit =
+              if (SplitDisplaySlot(date.dayOfWeek, period.number) in timetable.splitDisplaySlots) 2
+              else 1
+            SelectSlotDisplays()(candidates, displayWeek, timetable.term.totalWeeks, displayLimit)
+              .items
           },
       )
     }
