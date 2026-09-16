@@ -32,6 +32,7 @@ app/src/main/java/com/did2818/timetable/
 
 详细说明：
 
+- [需求、实现与注意事项总览](docs/REQUIREMENTS_AND_IMPLEMENTATION.md)
 - [架构与模块边界](docs/ARCHITECTURE.md)
 - [开发约定与验证方式](docs/DEVELOPMENT.md)
 - [课表 JSON 文件格式](docs/TIMETABLE_JSON_FORMAT.md)
