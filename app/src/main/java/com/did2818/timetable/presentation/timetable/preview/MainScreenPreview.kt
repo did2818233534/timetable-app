@@ -25,6 +25,7 @@ private fun TimetableScreenPreview() {
       onExportClick = {},
       onNewClick = {},
       onSettingsClick = {},
+      onStatisticsClick = {},
       onTimetableSelected = {},
       onOpenCell = { _, _, _ -> },
       onCopyItem = {},

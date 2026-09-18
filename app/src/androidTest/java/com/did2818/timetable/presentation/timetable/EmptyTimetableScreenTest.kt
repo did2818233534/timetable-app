@@ -23,6 +23,7 @@ class EmptyTimetableScreenTest {
         onExportClick = {},
         onNewClick = {},
         onSettingsClick = {},
+        onStatisticsClick = {},
         onOpenCell = { _, _, _ -> },
         onCopyItem = {},
         onPasteCell = { _, _ -> },

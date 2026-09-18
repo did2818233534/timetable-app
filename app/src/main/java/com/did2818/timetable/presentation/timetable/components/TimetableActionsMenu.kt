@@ -37,9 +37,11 @@ internal fun TimetableActionsMenu(
   onExportClick: () -> Unit,
   onNewClick: () -> Unit,
   onSettingsClick: () -> Unit,
+  onStatisticsClick: () -> Unit,
   onTimetableSelected: (String) -> Unit,
   exportEnabled: Boolean,
   settingsEnabled: Boolean,
+  statisticsEnabled: Boolean,
 ) {
   var menuExpanded by remember { mutableStateOf(false) }
   var switcherVisible by remember { mutableStateOf(false) }
@@ -52,6 +54,10 @@ internal fun TimetableActionsMenu(
       MenuItem("切换课程表", enabled = timetables.isNotEmpty()) {
         menuExpanded = false
         switcherVisible = true
+      }
+      MenuItem("统计", enabled = statisticsEnabled) {
+        menuExpanded = false
+        onStatisticsClick()
       }
       MenuItem("导入课程表") {
         menuExpanded = false

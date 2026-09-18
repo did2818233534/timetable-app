@@ -17,6 +17,7 @@ class TimetableActionsMenuTest {
   @Test
   fun hamburgerContainsActionsAndCanSwitchTimetable() {
     var selected = ""
+    var statisticsCount = 0
     composeTestRule.setContent {
       MaterialTheme {
         TimetableActionsMenu(
@@ -30,17 +31,23 @@ class TimetableActionsMenuTest {
           onExportClick = {},
           onNewClick = {},
           onSettingsClick = {},
+          onStatisticsClick = { statisticsCount++ },
           onTimetableSelected = { selected = it },
           exportEnabled = true,
           settingsEnabled = true,
+          statisticsEnabled = true,
         )
       }
     }
 
     composeTestRule.onNodeWithText("导入课程表").assertDoesNotExist()
     composeTestRule.onNodeWithTag("timetable-menu-button").performClick()
-    listOf("切换课程表", "导入课程表", "导出课程表", "新建课程表", "设置")
+    listOf("切换课程表", "统计", "导入课程表", "导出课程表", "新建课程表", "设置")
       .forEach { composeTestRule.onNodeWithText(it).assertExists() }
+
+    composeTestRule.onNodeWithText("统计").performClick()
+    composeTestRule.runOnIdle { assertEquals(1, statisticsCount) }
+    composeTestRule.onNodeWithTag("timetable-menu-button").performClick()
 
     composeTestRule.onNodeWithText("切换课程表").performClick()
     composeTestRule.onNodeWithText("✓ 第一份课表").assertExists()

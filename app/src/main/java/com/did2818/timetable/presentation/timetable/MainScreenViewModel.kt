@@ -12,6 +12,7 @@ import com.did2818.timetable.domain.repository.TimetableExporter
 import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.domain.repository.TimetableSpreadsheetExporter
 import com.did2818.timetable.domain.usecase.ClassEdit
+import com.did2818.timetable.domain.usecase.CalculateTimetableStatistics
 import com.did2818.timetable.domain.usecase.CreateEmptyTimetable
 import com.did2818.timetable.domain.usecase.EditTimetable
 import com.did2818.timetable.domain.usecase.FindScheduleConflicts
@@ -23,6 +24,7 @@ import com.did2818.timetable.domain.usecase.UpdateSplitDisplaySlot
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,6 +49,8 @@ class MainScreenViewModel(
   private val updateTimetableLayout: UpdateTimetableLayout = UpdateTimetableLayout(),
   private val updateReminderSettings: UpdateReminderSettings = UpdateReminderSettings(),
   private val updateSplitDisplaySlot: UpdateSplitDisplaySlot = UpdateSplitDisplaySlot(),
+  private val calculateTimetableStatistics: CalculateTimetableStatistics =
+    CalculateTimetableStatistics(),
 ) : ViewModel() {
   private val initialTimetable = repository.timetable.value
   private val startingWeek =
@@ -92,6 +96,9 @@ class MainScreenViewModel(
   }
 
   fun stateForWeek(week: Int): MainScreenUiState = stateFactory.create(repository.timetable.value, week)
+
+  fun statistics() =
+    calculateTimetableStatistics(repository.timetable.value, LocalDateTime.now(clock))
 
   private val messageChannel = Channel<String>(Channel.BUFFERED)
   val messages = messageChannel.receiveAsFlow()

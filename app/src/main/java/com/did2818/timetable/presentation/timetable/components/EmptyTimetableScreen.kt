@@ -27,8 +27,10 @@ fun EmptyTimetableScreen(
       onExportClick = {},
       onNewClick = onNewClick,
       onSettingsClick = {},
+      onStatisticsClick = {},
       exportEnabled = false,
       settingsEnabled = false,
+      statisticsEnabled = false,
     )
     Column(
       verticalArrangement = Arrangement.Center,

@@ -27,6 +27,7 @@ class MainScreenTest {
   private var copyCount = 0
   private var pasteCount = 0
   private var settingsCount = 0
+  private var statisticsCount = 0
   private val openedCellSizes = mutableListOf<Int>()
 
   @Before
@@ -45,6 +46,7 @@ class MainScreenTest {
         onExportClick = {},
         onNewClick = {},
         onSettingsClick = { settingsCount++ },
+        onStatisticsClick = { statisticsCount++ },
         onOpenCell = { _, _, items -> openedCellSizes += items.size },
         onCopyItem = { copyCount++ },
         onPasteCell = { _, _ -> pasteCount++ },
@@ -71,7 +73,11 @@ class MainScreenTest {
     composeTestRule.onNodeWithText("导入课程表").assertHasClickAction()
     composeTestRule.onNodeWithText("导出课程表").assertHasClickAction()
     composeTestRule.onNodeWithText("新建课程表").assertHasClickAction()
+    composeTestRule.onNodeWithText("统计").assertHasClickAction()
     composeTestRule.onNodeWithText("设置").assertHasClickAction()
+    composeTestRule.onNodeWithText("统计").performClick()
+    composeTestRule.runOnIdle { assertEquals(1, statisticsCount) }
+    composeTestRule.onNodeWithTag("timetable-menu-button").performClick()
     composeTestRule.onNodeWithText("设置").performClick()
     composeTestRule.runOnIdle { assertEquals(1, settingsCount) }
   }

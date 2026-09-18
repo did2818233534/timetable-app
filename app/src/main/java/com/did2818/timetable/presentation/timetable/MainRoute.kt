@@ -23,6 +23,8 @@ import com.did2818.timetable.domain.repository.TimetableImporter
 import com.did2818.timetable.domain.repository.TimetableRepository
 import com.did2818.timetable.domain.repository.TimetableSpreadsheetExporter
 import com.did2818.timetable.presentation.timetable.components.ExportFormatDialog
+import com.did2818.timetable.presentation.timetable.components.TimetableStatisticsDialog
+import com.did2818.timetable.domain.model.TimetableStatistics
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -51,6 +53,7 @@ fun MainRoute(
   var newTimetableStep by remember { mutableStateOf(NewTimetableStep.CLOSED) }
   var settingsPage by remember { mutableStateOf(TimetableSettingsPage.CLOSED) }
   var showExportOptions by remember { mutableStateOf(false) }
+  var statistics by remember { mutableStateOf<TimetableStatistics?>(null) }
   val fileActions =
     rememberTimetableFileActions(
       externalDocumentUri = externalDocumentUri,
@@ -78,6 +81,7 @@ fun MainRoute(
         newTimetableStep = NewTimetableStep.EDIT
       },
       onSettingsClick = { settingsPage = TimetableSettingsPage.LAYOUT },
+      onStatisticsClick = { statistics = viewModel.statistics() },
       onTimetableSelected = viewModel::selectTimetable,
       onOpenCell = { day, period, items ->
         if (items.isEmpty()) editorTarget = CourseEditorTarget.New(day, period)
@@ -129,6 +133,9 @@ fun MainRoute(
         fileActions.exportJsonToPicker(state.termName)
       },
     )
+  }
+  statistics?.let { value ->
+    TimetableStatisticsDialog(statistics = value, onDismiss = { statistics = null })
   }
   conflictWarning?.let { warning ->
     AlertDialog(

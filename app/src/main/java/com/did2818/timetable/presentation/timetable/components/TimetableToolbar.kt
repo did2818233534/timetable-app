@@ -21,11 +21,13 @@ fun TimetableToolbar(
   onExportClick: () -> Unit,
   onNewClick: () -> Unit,
   onSettingsClick: () -> Unit,
+  onStatisticsClick: () -> Unit,
   timetables: List<TimetableSummary> = emptyList(),
   selectedTimetableId: String? = null,
   onTimetableSelected: (String) -> Unit = {},
   exportEnabled: Boolean = true,
   settingsEnabled: Boolean = true,
+  statisticsEnabled: Boolean = true,
 ) {
   Row(
     verticalAlignment = Alignment.CenterVertically,
@@ -46,9 +48,11 @@ fun TimetableToolbar(
       onExportClick = onExportClick,
       onNewClick = onNewClick,
       onSettingsClick = onSettingsClick,
+      onStatisticsClick = onStatisticsClick,
       onTimetableSelected = onTimetableSelected,
       exportEnabled = exportEnabled,
       settingsEnabled = settingsEnabled,
+      statisticsEnabled = statisticsEnabled,
     )
   }
 }
