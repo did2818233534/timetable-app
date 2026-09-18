@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.did2818.timetable.domain.model.TimetableStatistics
 import java.time.DayOfWeek
 import java.time.LocalDateTime
@@ -14,7 +15,7 @@ class TimetableStatisticsDialogTest {
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
-  fun dialogDisplaysSummaryAndEveryWeekday() {
+  fun dailyStatisticsAreCollapsedByDefaultAndToggleWithWeeklySummary() {
     val daily = DayOfWeek.entries.associateWith { if (it == DayOfWeek.FRIDAY) 2 else 0 }
     composeTestRule.setContent {
       MaterialTheme {
@@ -36,7 +37,15 @@ class TimetableStatisticsDialogTest {
     listOf("课程统计", "本周还剩", "距离最后一节课", "距离上完所有课还剩", "已经上了")
       .forEach { composeTestRule.onNodeWithText(it).assertExists() }
     DayOfWeek.entries.map(DayOfWeek::testName)
+      .forEach { composeTestRule.onNodeWithText(it).assertDoesNotExist() }
+
+    composeTestRule.onNodeWithText("本周还剩").performClick()
+    DayOfWeek.entries.map(DayOfWeek::testName)
       .forEach { composeTestRule.onNodeWithText(it).assertExists() }
+
+    composeTestRule.onNodeWithText("本周还剩").performClick()
+    DayOfWeek.entries.map(DayOfWeek::testName)
+      .forEach { composeTestRule.onNodeWithText(it).assertDoesNotExist() }
   }
 }
 
